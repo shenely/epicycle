@@ -134,7 +134,7 @@ FUNCTION_ODE_METHOD(rk4)
     // k[2] = f(x0 + h / 2, y0 + h * k[1] / 2)
     // k[3] = f(x0 + h, y0 + h * k[2])
      for (size_t i = 0; i < 3; i++) {
-        __apply_stage(i+1, A[i], delta_x, y0, &y, &k[i]);
+        __apply_stage(i+1, A[i], delta_x, y0, &y, k);
         va_copy(cargs, *vargs);
         fun(x0 + c_bar[i] * delta_x, &y, &k[i+1], nargs, &cargs);
         va_end(cargs);

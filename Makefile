@@ -11,7 +11,7 @@ LIB=$(PROJ)/epicycle
 BUILD=$(PROJ)/build
 MAIN=$(PROJ)/main.c
 
-MACROS=__DEBUG__ __MEDIUM__ GMAT_NDIM=13
+MACROS=__DEBUG__ __MEDIUM__ GMAT_NDIM=13 ODE_EULER
 CPPFLAGS=-I$(INCLUDE) $(MACROS:%=-D%)
 LDFLAGS=-L$(LIB) -Wl,--enable-new-dtags,-R$(LIB)
 
@@ -26,13 +26,13 @@ epicycle.x86: $(ALL:%=$(LIB)/libepi%.so)
 
 $(LIB)/libepigee.so: $(GEE:%.c=$(BUILD)/%.o)
 	mkdir -p $(@D)
-	$(CC) -shared $(CFLAGS) $(CPPFLAGS) -fPIC $(LDFLAGS) $(CLIBS) $^ -lepibase -lepimath -lepicore -o $@
+	$(CC) -shared $(CFLAGS) $(CPPFLAGS) -fPIC $(LDFLAGS) $(CLIBS) $^ -lepibase -lepimath -o $@
 
-$(LIB)/libepicore.so: $(CORE:%.c=$(BUILD)/%.o) dummy.o
+$(LIB)/libepicore.so: $(CORE:%.c=$(BUILD)/%.o)
 	mkdir -p $(@D)
 	$(CC) -shared $(CFLAGS) $(CPPFLAGS) -fPIC $(LDFLAGS) $(CLIBS) $^ -lepibase -lepimath -o $@
 
-$(LIB)/libepimath.so: $(MATH:%.c=$(BUILD)/%.o) dummy.o
+$(LIB)/libepimath.so: $(MATH:%.c=$(BUILD)/%.o)
 	mkdir -p $(@D)
 	$(CC) -shared $(CFLAGS) $(CPPFLAGS) -fPIC $(LDFLAGS) $(CLIBS) $^ -lepibase -o $@
 
@@ -51,4 +51,4 @@ $(BUILD)/%.o: $(SRC)/%.c $(INCLUDE)/*.h
 .PHONY: clean
 
 clean:
-	$(RM) ./epicycle.x86 $(LIB)/*.so $(BUILD)/*.o
+	$(RM) ./epicycle.x86 $(LIB)/*.so $(BUILD)/*.o ./*.o

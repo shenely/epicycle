@@ -1,5 +1,6 @@
-from setuptools import setup, Extension
+import os.path
 
+from setuptools import setup, Extension
 import numpy
 
 _epicycle = Extension(
@@ -8,7 +9,11 @@ _epicycle = Extension(
         "epicycle.c",
     ],
     include_dirs=["./include"],
-    library_dirs=["/home/shenely/Documents/epicycle/epicycle"],
+    define_macros=[
+        ("__MEDIUM__", None),
+        ("GMAT_NDIM", "13"),
+    ],
+    library_dirs=[os.path.join(os.path.dirname(__file__), "epicycle")],
     libraries=[
         "rt",
         "epibase",
@@ -16,7 +21,7 @@ _epicycle = Extension(
         "epicore",
         "epigee",
     ],
-    runtime_library_dirs=["/home/shenely/Documents/epicycle/epicycle"],
+    runtime_library_dirs=[os.path.join(os.path.dirname(__file__), "epicycle")],
 )
 
 setup(
