@@ -49,7 +49,6 @@ void poly_sub(const struct poly_s* P, const struct poly_s* Q, struct poly_s* res
 void poly_mul(const struct poly_s* P, const struct poly_s* Q, struct poly_s* restrict R)
 {
     LOG_STATS("poly_mul", P->deg * Q->deg, P->deg * Q->deg, 0);
-    assert((P != R) && (Q != R));
     assert(R->deg >= P->deg + Q->deg);
     R->deg = P->deg + Q->deg;
     poly_zero(R);
@@ -62,7 +61,6 @@ void poly_mul(const struct poly_s* P, const struct poly_s* Q, struct poly_s* res
 void poly_div(const struct poly_s* N, const struct poly_s* D, struct poly_s* restrict Q, struct poly_s* restrict R)
 {
     LOG_STATS("poly_div", (N->deg - D->deg) * (D->deg + 2), (N->deg - D->deg) * (D->deg + 2), 0);
-    assert((N != Q) && (D != Q) && (N != R) && (D != R));
     assert(R->deg >= N->deg);
     // N = D * Q + R
     poly_zero(Q);
@@ -80,7 +78,6 @@ void poly_div(const struct poly_s* N, const struct poly_s* D, struct poly_s* res
 void poly_diff(const struct poly_s* P, struct poly_s* restrict diff_P) 
 {
     LOG_STATS("poly_diff", 0, P->deg, 0);
-    assert(P != diff_P);
     assert(diff_P->deg >= P->deg - 1);
     diff_P->deg = P->deg - 1;
     for (size_t n = 1; n <= P->deg; n++)
@@ -90,7 +87,6 @@ void poly_diff(const struct poly_s* P, struct poly_s* restrict diff_P)
 void poly_int(const struct poly_s* P, struct poly_s* restrict int_P) 
 {
     LOG_STATS("poly_int", P->deg, P->deg, 0);
-    assert(P != int_P);
     assert(int_P->deg >= P->deg + 1);
     int_P->deg = P->deg + 1;
     int_P->coeff[0] = 0.0;

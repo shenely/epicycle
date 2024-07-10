@@ -32,6 +32,6 @@ void log_any(
     vsprintf(buffer, format, vargs);
     va_end(vargs);
     
-    printf("\e[01;36m(%s) \e[%sm[%s] \e[00m%s\n", timestamp, color, text, buffer);
+    printf("\x1B[01;36m(%s) \x1B[%sm[%s] \x1B[00m%s\n", timestamp, color, text, buffer);
 }
 

@@ -3,7 +3,6 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
-#include <assert.h>
 #include "gmat.h"
 #include "config.h"
 #include "log.h"
@@ -155,7 +154,6 @@ void gmat_muls(const gmat_t* A, double s, gmat_t* B)
 void gmat_mul(const gmat_t* A, const gmat_t* B, gmat_t* restrict C)
 {
     LOG_STATS("gmat_mul", GMAT_NDIM * GMAT_NDIM * GMAT_NDIM, GMAT_NDIM * GMAT_NDIM * GMAT_NDIM, 0);
-    assert((A != C) && (B != C));
     for (size_t i = 0; i < GMAT_NDIM; i++)
         for (size_t j = 0; j < GMAT_NDIM; j++) {
             (*C)[i][j] = 0.0;
@@ -176,7 +174,6 @@ void gvec_omul(const gvec_t* u_bar, const gvec_t* v_bar, gmat_t* restrict A)
 void gmat_mulv(const gmat_t* A, const gvec_t* u_bar, gvec_t* restrict v_bar)
 {
     LOG_STATS("gmat_mulv", 0, 0, 0);
-    assert(u_bar != v_bar);
     for (size_t i = 0; i < GMAT_NDIM; i++)
         (*v_bar)[i] = gvec_dot(&(*A)[i], u_bar);
 }
@@ -184,7 +181,6 @@ void gmat_mulv(const gmat_t* A, const gvec_t* u_bar, gvec_t* restrict v_bar)
 void gmat_vmul(const gvec_t* u_bar, const gmat_t* A, gvec_t* restrict v_bar)
 {
     LOG_STATS("gmat_mulv", GMAT_NDIM * GMAT_NDIM, GMAT_NDIM * GMAT_NDIM, 0);
-    assert(u_bar != v_bar);
     for (size_t i = 0; i < GMAT_NDIM; i++) {
         (*v_bar)[i] = 0.0;
         for (size_t j = 0; j < GMAT_NDIM; j++)

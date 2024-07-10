@@ -100,7 +100,6 @@ void quat_muls(const quat_t* p, double s, quat_t* q)
 void quat_mulv(const quat_t* p, const vec_t* v_bar, quat_t* restrict q)
 {
     LOG_STATS("quat_mulv", 9, 12, 0);
-    assert(p != q);
     (*q)[0] = - (*p)[1] * (*v_bar)[0]
               - (*p)[2] * (*v_bar)[1]
               - (*p)[3] * (*v_bar)[2];
@@ -118,7 +117,6 @@ void quat_mulv(const quat_t* p, const vec_t* v_bar, quat_t* restrict q)
 void quat_vmul(const vec_t* v_bar, const quat_t* p, quat_t* restrict q)
 {
     LOG_STATS("quat_vmul", 9, 12, 0);
-    assert(p != q);
     (*q)[0] = - (*v_bar)[0] * (*p)[1]
               - (*v_bar)[1] * (*p)[2]
               - (*v_bar)[2] * (*p)[3];

@@ -2,7 +2,6 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
-#include <assert.h>
 #include "mat.h"
 #include "config.h"
 #include "util.h"
@@ -105,7 +104,6 @@ void mat_muls(const mat_t* A, double s, mat_t* B)
 void mat_mul(const mat_t* A, const mat_t* B, mat_t* restrict C)
 {
     LOG_STATS("mat_mul", 27, 27, 0);
-    assert((A != C) && (B != C));
     for (size_t i = 0; i < 3; i++)
         for (size_t j = 0; j < 3; j++) {
             (*C)[i][j] = 0.0;
@@ -126,7 +124,6 @@ void vec_omul(const vec_t* u_bar, const vec_t* v_bar, mat_t* restrict A)
 void mat_mulv(const mat_t* A, const vec_t* u_bar, vec_t* restrict v_bar)
 {
     LOG_STATS("mat_mulv", 0, 0, 0);
-    assert(u_bar != v_bar);
     for (size_t i = 0; i < 3; i++)
         (*v_bar)[i] = vec_dot(&(*A)[i], u_bar);
 }
@@ -134,7 +131,6 @@ void mat_mulv(const mat_t* A, const vec_t* u_bar, vec_t* restrict v_bar)
 void mat_vmul(const vec_t* u_bar, const mat_t* A, vec_t* restrict v_bar)
 {
     LOG_STATS("mat_vmul", 9, 9, 0);
-    assert(u_bar != v_bar);
     for (size_t i = 0; i < 3; i++) {
         (*v_bar)[i] = 0.0;
         for (size_t j = 0; j < 3; j++)

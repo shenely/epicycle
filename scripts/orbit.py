@@ -20,6 +20,7 @@ def setup(console):
         data_model.size = 10
         data_model.cfg.clk.delta_t = 1.0
         
+        # bus
         data_model.cfg.obj_lst[0].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([0.5, 0.5, 0.5])
         )
@@ -34,6 +35,7 @@ def setup(console):
             numpy.array([4.0, 4.0, 4.0])
         )
         
+        # rw A
         data_model.cfg.obj_lst[1].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([10e-2, 10e-2, 5e-2])
         )
@@ -57,6 +59,7 @@ def setup(console):
             ]) * 0.5
         )
         
+        # rw B
         data_model.cfg.obj_lst[2].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([10e-2, 10e-2, 5e-2])
         )
@@ -80,6 +83,7 @@ def setup(console):
             ]) * 0.5
         )
         
+        # rw C
         data_model.cfg.obj_lst[3].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([10e-2, 10e-2, 5e-2])
         )
@@ -103,6 +107,7 @@ def setup(console):
             ]) * 0.5
         )
         
+        # rw D
         data_model.cfg.obj_lst[4].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([10e-2, 10e-2, 5e-2])
         )
@@ -126,6 +131,7 @@ def setup(console):
             ]) * 0.5
         )
         
+        # mt A
         data_model.cfg.obj_lst[5].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([2e-2, 2e-2, 20e-2])
         )
@@ -144,6 +150,7 @@ def setup(console):
             ]) * 0.1
         )
         
+        # mt B
         data_model.cfg.obj_lst[6].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([2e-2, 2e-2, 20e-2])
         )
@@ -162,6 +169,7 @@ def setup(console):
             ]) * 0.1
         )
         
+        # mt C
         data_model.cfg.obj_lst[7].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([2e-2, 2e-2, 20e-2])
         )
@@ -171,7 +179,6 @@ def setup(console):
         data_model.cfg.obj_lst[7].q = numpy.ctypeslib.as_ctypes(
             numpy.array([math.sqrt(2) / 2, - math.sqrt(2) / 2, 0.0, 0.0])
         )
-        
         data_model.st.obj_lst[7].m = 0.1
         data_model.st.obj_lst[7].I_cm = numpy.ctypeslib.as_ctypes(
             numpy.array([
@@ -181,6 +188,7 @@ def setup(console):
             ]) * 0.1
         )
         
+        # sa A
         data_model.cfg.obj_lst[8].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([1.0, 1e-2, 0.5])
         )
@@ -195,6 +203,7 @@ def setup(console):
             numpy.array([1.0, 1e-4, 0.25]) / 12
         )
         
+        # sa B
         data_model.cfg.obj_lst[9].bbox = numpy.ctypeslib.as_ctypes(
             numpy.array([1.0, 1e-2, 0.5])
         )

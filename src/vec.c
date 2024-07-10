@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <math.h>
 #include <string.h>
-#include <assert.h>
 #include "vec.h"
 #include "log.h"
 
@@ -84,7 +83,6 @@ double vec_dot(const vec_t* u_bar, const vec_t* v_bar)
 void vec_cross(const vec_t* u_bar, const vec_t* v_bar, vec_t* restrict w_bar)
 {
     LOG_STATS("vec_cross", 3, 6, 0);
-    assert((u_bar != w_bar) && (v_bar != w_bar));
     for (size_t i = 0; i < 3; i++)
         (*w_bar)[i] = (*u_bar)[(i+1)%3] * (*v_bar)[(i+2)%3]
                     - (*u_bar)[(i+2)%3] * (*v_bar)[(i+1)%3];
