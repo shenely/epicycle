@@ -6,6 +6,8 @@
 extern enum log_e noise_level;
 
 #ifdef __DEBUG__
+clock_t stats_tick = 0,
+        stats_tock = 0;
 long stats_total_add = 0,
      stats_total_mul = 0,
      stats_total_pow = 0;

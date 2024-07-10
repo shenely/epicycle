@@ -67,7 +67,7 @@ bool mat_inv(const mat_t* A, mat_t* restrict A_inv)
     return true;
 }
 
-void mat__T(const mat_t* A, mat_t* restrict A__T)
+void mat__T(const mat_t* A, mat_t* A__T)
 {
     LOG_STATS("mat__T", 0, 0, 0);
     double temp;
@@ -81,21 +81,21 @@ void mat__T(const mat_t* A, mat_t* restrict A__T)
     }
 }
 
-void mat_add(const mat_t* A, const mat_t* B, mat_t* restrict C)
+void mat_add(const mat_t* A, const mat_t* B, mat_t* C)
 {
     LOG_STATS("mat_add", 0, 0, 0);
     for (size_t i = 0; i < 3; i++)
         vec_add(&(*A)[i], &(*B)[i], &(*C)[i]);
 }
 
-void mat_sub(const mat_t* A, const mat_t* B, mat_t* restrict C)
+void mat_sub(const mat_t* A, const mat_t* B, mat_t* C)
 {
     LOG_STATS("mat_sub", 0, 0, 0);
     for (size_t i = 0; i < 3; i++)
         vec_sub(&(*A)[i], &(*B)[i], &(*C)[i]);
 }
 
-void mat_muls(const mat_t* A, double s, mat_t* restrict B)
+void mat_muls(const mat_t* A, double s, mat_t* B)
 {
     LOG_STATS("mat_muls", 0, 0, 0);
     for (size_t i = 0; i < 3; i++)

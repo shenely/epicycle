@@ -25,13 +25,13 @@ void mat_eye(mat_t* restrict);
  * :param mat_t* A: input matrix
  * :param mat_t* B: output matrix
  */
-void mat_pos(const mat_t*, mat_t* restrict);
+void mat_pos(const mat_t*, mat_t*);
 
 /* Matrix negative
  * :param mat_t* A: input matrix
  * :param mat_t* B: output matrix
  */
-void mat_neg(const mat_t*, mat_t* restrict);
+void mat_neg(const mat_t*, mat_t*);
 
 /* Matrix trace
  * :param mat_t* A: input matrix
@@ -56,7 +56,7 @@ bool mat_inv(const mat_t*, mat_t* restrict);
  * :param mat_t* A: input matrix
  * :param mat_t* A__T: output matrix
  */
-void mat__T(const mat_t*, mat_t* restrict);
+void mat__T(const mat_t*, mat_t*);
 
 /* Matrix addition
  * :param mat_t* A: (first) input matrix
@@ -77,7 +77,7 @@ void mat_sub(const mat_t*, const mat_t*, mat_t*);
  * :param double s: input scalar
  * :param mat_t* B: output matrix
  */
-void mat_muls(const mat_t*, double, mat_t* restrict);
+void mat_muls(const mat_t*, double, mat_t*);
 
 /* Matrix multiplication
  * :param mat_t* A: (first) input matrix

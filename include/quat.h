@@ -25,19 +25,19 @@ void quat_one(quat_t* restrict);
  * :param quat_t* p: input quaternion
  * :param quat_t* q: output quaternion
  */
-void quat_pos(const quat_t*, quat_t* restrict);
+void quat_pos(const quat_t*, quat_t*);
 
 /* Quaternion negative
  * :param quat_t* p: input quaternion
  * :param quat_t* q: output quaternion
  */
-void quat_neg(const quat_t*, quat_t* restrict);
+void quat_neg(const quat_t*, quat_t*);
 
 /* Quaternion conjugate
  * :param quat_t* p: input quaternion
  * :param quat_t* q: output quaternion
  */
-void quat_conj(const quat_t*, quat_t* restrict);
+void quat_conj(const quat_t*, quat_t*);
 
 /* Quaternion norm
  * :param quat_t* q: input quaternion
@@ -50,14 +50,14 @@ double quat_norm(const quat_t*);
  * :param quat_t* q_inv: output quaternion
  * :returns bool: invertable quaternion
  */
-bool quat_inv(const quat_t*, quat_t* restrict);
+bool quat_inv(const quat_t*, quat_t*);
 
 /* Unit quaternion
  * :param quat_t* p: input quaternion
  * :param quat_t* q: output quaternion
  * :returns bool: invertable quaternion
  */
-bool quat_unit(const quat_t*, quat_t* restrict);
+bool quat_unit(const quat_t*, quat_t*);
 
 /* Is zero quaternion?
  * :param quat_t q: input quaternion
@@ -78,21 +78,21 @@ bool quat_isunit(const quat_t*);
  * :param quat_t* q: (second) input quaternion
  * :param quat_t* r: output quaternion
  */
-void quat_add(const quat_t*, const quat_t*, quat_t* restrict);
+void quat_add(const quat_t*, const quat_t*, quat_t*);
 
 /* Quaternion subtraction
  * :param quat_t* p: (first) input quaternion
  * :param quat_t* q: (second) input quaternion
  * :param quat_t* r: output quaternion
  */
-void quat_sub(const quat_t*, const quat_t*, quat_t* restrict);
+void quat_sub(const quat_t*, const quat_t*, quat_t*);
 
 /* Quaternion-scalar multiplication
  * :param quat_t* p: input quaternion
  * :param double s: input scalar
  * :param quat_t* q: output quaternion
  */
-void quat_muls(const quat_t*, double, quat_t* restrict);
+void quat_muls(const quat_t*, double, quat_t*);
 
 /* Quaternion-vector multiplication
  * :param quat_t* p: input quaternion
@@ -139,14 +139,14 @@ void quat_log(const quat_t*, vec_t* restrict);
  * :param vec_t* u_bar: input vector
  * :param vec_t* v_bar: output vector
  */
-void vec_rot(const quat_t*, const vec_t*, vec_t* restrict);
+void vec_rot(const quat_t*, const vec_t*, vec_t*);
 
 /* Vector (inverse) rotation
  * :param quat_t* q: input (unit) quaternion
  * :param vec_t* u_bar: input vector
  * :param vec_t* v_bar: output vector
  */
-void vec_irot(const quat_t*, const vec_t*, vec_t* restrict);
+void vec_irot(const quat_t*, const vec_t*, vec_t*);
 
 /* Quaternion rotation matrix
  * :param quat_t* q: input (unit) quaternion

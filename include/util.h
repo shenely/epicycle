@@ -5,11 +5,11 @@
  */
 
 #include <stdint.h>
-#include <math.h>
 
 #define MIN(A, B) ((A<B)?A:B)
 #define MAX(A, B) ((A>B)?A:B)
 
+#define M_PI 3.14159265358979323846264338327
 #define M_PI_180 (M_PI / 180)
 #define M_180_PI (180 / M_PI)
 #define M_DEGREE M_PI_180 / 2

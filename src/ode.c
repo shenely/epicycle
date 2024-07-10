@@ -12,7 +12,7 @@ ode_meth_t ode_default_meth = ODE_METHOD_NAME(midp);
 
 static void __interp_gvec(
     double x0, const gvec_t* y0,
-    double x1, gvec_t* restrict y1,
+    double x1, const gvec_t* y1,
     double x, gvec_t* restrict y
 ) {
     LOG_STATS("__interp_gvec", 0, 0, 0);
@@ -74,7 +74,9 @@ static void __apply_stage(
     for (size_t i = 1; i < N; i++) {
         if (fabs(A[i]) < ABSTOL)
             continue;
-        __int_gvec(A[i] * delta_x, &k[i], y1, y1);
+        gvec_t temp;
+        __int_gvec(A[i] * delta_x, &k[i], y1, &temp);
+        gvec_pos(&temp, y1);
     }
 }
 
@@ -151,21 +153,21 @@ FUNCTION_ODE_METHOD(heuler)
     LOG_STATS("ode_heuler", 1, 2, 0);
     assert(step != NULL);
     double delta_x = x1 - x0;
-    gvec_t k, y2;
+    gvec_t k, y2, temp;
     
     // k[0] = f(x0, y0)
     va_list cargs;
     va_copy(cargs, *vargs);
     fun(x0, y0, &k, nargs, &cargs);
     va_end(cargs);
-    __int_gvec(0.5 * delta_x, &k, y0, &y2);
+    __int_gvec(0.5 * delta_x, &k, y0, &temp);
     
     // k[1] = f(x0 + h, y0 + h * k[0])
     va_copy(cargs, *vargs);
     __int_gvec(delta_x, &k, y0, y1);
     fun(x1, y1, &k, nargs, &cargs);
     va_end(cargs);
-    __int_gvec(0.5 * delta_x, &k, &y2, &y2);
+    __int_gvec(0.5 * delta_x, &k, &temp, &y2);
     
     // y2 = y0 + h * (k[0] + k[1]) / 2
     // y1 = y0 + h * k[0]

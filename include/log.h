@@ -22,8 +22,8 @@ enum log_e {
 #ifdef __DEBUG__
 #define LOG_TRACE(...)    LOG(E_TRACE, "01;34", __VA_ARGS__)
 #define LOG_DEBUG(...)    LOG(E_DEBUG, "01;32", __VA_ARGS__)
-clock_t stats_tick, stats_tock;
-long stats_total_add,
+extern clock_t stats_tick, stats_tock;
+extern long stats_total_add,
      stats_total_mul,
      stats_total_pow;
 #define START_CLOCK() stats_tick = clock()

@@ -26,7 +26,7 @@ void poly_neg(const struct poly_s* P, struct poly_s* restrict Q)
 
 void poly_add(const struct poly_s* P, const struct poly_s* Q, struct poly_s* restrict R)
 {
-    LOG_STATS("poly_add", abs(P->deg - Q->deg), 0, 0);
+    LOG_STATS("poly_add", MAX(P->deg, Q->deg) - MIN(P->deg, Q->deg), 0, 0);
     assert(R->deg >= MAX(P->deg, Q->deg));
     R->deg = MAX(P->deg, Q->deg);
     for (size_t n = 0; n <= R->deg; n++)
@@ -37,7 +37,7 @@ void poly_add(const struct poly_s* P, const struct poly_s* Q, struct poly_s* res
 
 void poly_sub(const struct poly_s* P, const struct poly_s* Q, struct poly_s* restrict R)
 {
-    LOG_STATS("poly_add", abs(P->deg - Q->deg), 0, 0);
+    LOG_STATS("poly_add", MAX(P->deg, Q->deg) - MIN(P->deg, Q->deg), 0, 0);
     assert(R->deg >= MAX(P->deg, Q->deg));
     R->deg = MAX(P->deg, Q->deg);
     for (size_t n = 0; n <= R->deg; n++)

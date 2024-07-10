@@ -43,11 +43,11 @@ bool gvec_unit(const gvec_t* v_bar, gvec_t* restrict v_hat)
     return true;
 }
 
-bool gvec_iszero(gvec_t* restrict v_bar) {
+bool gvec_iszero(const gvec_t* v_bar) {
     return gvec_norm(v_bar) < ABSTOL;
 }
 
-bool gvec_isunit(gvec_t* restrict v_bar) {
+bool gvec_isunit(const gvec_t* v_bar) {
     return fabs(gvec_norm(v_bar) - 1.0) < ABSTOL;
 }
 
@@ -94,11 +94,11 @@ void gmat_eye(gmat_t* restrict A)
         (*A)[i][i] = 1.0;
 }
 
-void gmat_pos(const gmat_t* A, gmat_t* restrict B) {
+void gmat_pos(const gmat_t* A, gmat_t* B) {
     memcpy(B, A, sizeof(gmat_t));
 }
 
-void gmat_neg(const gmat_t* A, gmat_t* restrict B)
+void gmat_neg(const gmat_t* A, gmat_t* B)
 {
     LOG_STATS("gmat_neg", 0, 0, 0);
     for (size_t i = 0; i < GMAT_NDIM; i++)
@@ -114,7 +114,7 @@ double gmat_tr(const gmat_t* A)
     return s;
 }
 
-void gmat__T(const gmat_t* A, gmat_t* restrict A__T)
+void gmat__T(const gmat_t* A, gmat_t* A__T)
 {
     LOG_STATS("gmat__T", 0, 0, 0);
     double temp;
@@ -130,14 +130,14 @@ void gmat__T(const gmat_t* A, gmat_t* restrict A__T)
 
 bool gmat_inv(const gmat_t* A, gmat_t* restrict A_inv);
 
-void gmat_add(const gmat_t* A, const gmat_t* B, gmat_t* restrict C)
+void gmat_add(const gmat_t* A, const gmat_t* B, gmat_t* C)
 {
     LOG_STATS("gmat_add", 0, 0, 0);
     for (size_t i = 0; i < GMAT_NDIM; i++)
         gvec_add(&(*A)[i], &(*B)[i], &(*C)[i]);
 }
 
-void gmat_sub(const gmat_t* A, const gmat_t* B, gmat_t* restrict C)
+void gmat_sub(const gmat_t* A, const gmat_t* B, gmat_t* C)
 {
     LOG_STATS("gmat_add", 0, 0, 0);
     for (size_t i = 0; i < GMAT_NDIM; i++)
@@ -145,7 +145,7 @@ void gmat_sub(const gmat_t* A, const gmat_t* B, gmat_t* restrict C)
 }
 
 
-void gmat_muls(const gmat_t* A, double s, gmat_t* restrict B)
+void gmat_muls(const gmat_t* A, double s, gmat_t* B)
 {
     LOG_STATS("gmat_muls", 0, 0, 0);
     for (size_t i = 0; i < GMAT_NDIM; i++)

@@ -1,7 +1,7 @@
 export PATH := bin:$(PATH)
 SHELL = /bin/sh
 CC=gcc
-CFLAGS=-g -O3 -Wall -Wextra -Werror -fwrapv
+CFLAGS=-std=c99 -g -O3 -Wall -Wextra -Werror -fwrapv
 CLIBS=-lm -lrt -pthread
 
 PROJ=.

@@ -17,18 +17,18 @@ void quat_one(quat_t* restrict q)
     vec_zero((vec_t*) &(*q)[1]);
 }
 
-void quat_pos(const quat_t* p, quat_t* restrict q) {
+void quat_pos(const quat_t* p, quat_t* q) {
     memcpy(q, p, sizeof(quat_t));
 }
 
-void quat_neg(const quat_t* p, quat_t* restrict q)
+void quat_neg(const quat_t* p, quat_t* q)
 {
     LOG_STATS("quat_neg", 5, 0, 0);
     for (size_t i = 0; i < 4; i++)
         (*q)[i] = - (*p)[i];
 }
 
-void quat_conj(const quat_t* p, quat_t* restrict q)
+void quat_conj(const quat_t* p, quat_t* q)
 {
     LOG_STATS("quat_conj", 3, 0, 0);
     (*q)[0] = (*p)[0];
@@ -45,7 +45,7 @@ double quat_norm(const quat_t* q)
     return sqrt(s);
 }
 
-bool quat_inv(const quat_t* q, quat_t* restrict q_inv)
+bool quat_inv(const quat_t* q, quat_t* q_inv)
 {
     LOG_STATS("quat_inv", 4, 5, 0);
     double s = 0.0;
@@ -58,7 +58,7 @@ bool quat_inv(const quat_t* q, quat_t* restrict q_inv)
     return true;
 }
 
-bool quat_unit(const quat_t* p, quat_t* restrict q)
+bool quat_unit(const quat_t* p, quat_t* q)
 {
     LOG_STATS("quat_unit", 0, 1, 0);
     double s;
@@ -76,21 +76,21 @@ bool quat_isunit(const quat_t* q) {
     return fabs(quat_norm(q) - 1.0) < M_ARCSEC;
 }
 
-void quat_add(const quat_t* p, const quat_t* q, quat_t* restrict r)
+void quat_add(const quat_t* p, const quat_t* q, quat_t* r)
 {
     LOG_STATS("quat_add", 4, 0, 0);
     for (size_t i = 0; i < 4; i++)
         (*r)[i] = (*p)[i] + (*q)[i];
 }
 
-void quat_sub(const quat_t* p, const quat_t* q, quat_t* restrict r)
+void quat_sub(const quat_t* p, const quat_t* q, quat_t* r)
 {
     LOG_STATS("quat_sub", 4, 0, 0);
     for (size_t i = 0; i < 4; i++)
         (*r)[i] = (*p)[i] - (*q)[i];
 }
 
-void quat_muls(const quat_t* p, double s, quat_t* restrict q)
+void quat_muls(const quat_t* p, double s, quat_t* q)
 {
     LOG_STATS("quat_muls", 0, 4, 0);
     for (size_t i = 0; i < 4; i++)
@@ -194,7 +194,7 @@ void quat_log(const quat_t* q, vec_t* restrict v_bar)
     }
 }
 
-void vec_rot(const quat_t* q, const vec_t* u_bar, vec_t* restrict v_bar)
+void vec_rot(const quat_t* q, const vec_t* u_bar, vec_t* v_bar)
 {
     LOG_STATS("vec_rot", 0, 0, 0);
     assert(quat_isunit(q));
@@ -206,7 +206,7 @@ void vec_rot(const quat_t* q, const vec_t* u_bar, vec_t* restrict v_bar)
     memcpy(v_bar, &(foo[1]), sizeof(vec_t));
 }
 
-void vec_irot(const quat_t* q, const vec_t* u_bar, vec_t* restrict v_bar)
+void vec_irot(const quat_t* q, const vec_t* u_bar, vec_t* v_bar)
 {
     LOG_STATS("vec_irot", 0, 0, 0);
     assert(quat_isunit(q));

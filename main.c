@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include "config.h"
 #include "util.h"
 #include "log.h"
@@ -183,11 +184,8 @@ int main(int argc, char ** argv) {
     stdatm_init();
 
     bool first = true;
-    struct timespec timeout;
-    timespec_get(&timeout, TIME_UTC);
     while (last_signal != SIGINT) {  // TODO exit condition
-        timeout.tv_sec += 1;
-        if (sem_timedwait(&shared_data->sem1, &timeout) != 0)
+        if (sem_wait(&shared_data->sem1) != 0)
             continue;
         RESET_STATS();
         START_CLOCK();
