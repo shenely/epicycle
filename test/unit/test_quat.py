@@ -9,29 +9,12 @@ import pytest
 from epicycle import quat
 
 
-def test_quat_zero():
-    q = quat.zero()
-    assert q[0] == 0.0
-    assert q[1] == 0.0
-    assert q[2] == 0.0
-    assert q[3] == 0.0
-
-
 def test_quat_one():
     q = quat.one()
     assert q[0] == 1.0
     assert q[1] == 0.0
     assert q[2] == 0.0
     assert q[3] == 0.0
-
-
-def test_quat_pos():
-    p = numpy.array([2.0, -3.0, 4.0, -5.0])
-    q = quat.pos(p)
-    assert q[0] == 2.0
-    assert q[1] == -3.0
-    assert q[2] == 4.0
-    assert q[3] == -5.0
 
 
 def test_quat_neg():
@@ -86,26 +69,6 @@ def test_quat_unit_bad():
     q = numpy.zeros((4,))
     with pytest.raises(ZeroDivisionError):
         quat.unit(q)
-
-
-def test_quat_iszero():
-    q = numpy.array([0.0, 0.0, 0.0, 0.0])
-    assert quat.iszero(q)
-
-
-def test_quat_not_iszero():
-    q = numpy.array([0.5, 0.5, 0.5, 0.5])
-    assert not quat.iszero(q)
-
-
-def test_quat_isunit():
-    q = numpy.array([0.5, 0.5, 0.5, 0.5])
-    assert quat.isunit(q)
-
-
-def test_quat_not_isunit():
-    q = numpy.array([0.0, 0.0, 0.0, 0.0])
-    assert not quat.isunit(q)
 
 
 def test_quat_add():

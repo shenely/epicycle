@@ -24,7 +24,7 @@
  * :param st_t* st: state structure
  * :param quat_t* curr: output quaternion
  */
-void gee_quat_i2f(const struct st_s*, quat_t* restrict);
+void gee_quat_i2f(const struct st_s*, quat_t);
 
 /* ECEF to geodetic
  * :param vec_t* st: input vector
@@ -33,7 +33,7 @@ void gee_quat_i2f(const struct st_s*, quat_t* restrict);
  * :param double* alt: geodetic altitude
  * :returns bool: solution converged
  */
-bool gee_f2d(const vec_t*, double*, double*, double*);
+bool gee_f2d(const vec_t, double*, double*, double*);
 
 /* Inverse square law
  * :param vec_t* st: input vector
@@ -41,7 +41,7 @@ bool gee_f2d(const vec_t*, double*, double*, double*);
  * :param double* g: force of gravity
  * :returns bool:
  */
-bool inv_sq_law(const vec_t*, double*, double*);
+bool inv_sq_law(const vec_t, double*, double*);
 
 /* Spherical harmonics */
 void sph_harm(
@@ -86,7 +86,7 @@ bool gee_fast(
 );
 
 /* Evalute geopotential and geomagnetic force model */
-bool geoall_eval(double, const vec_t*, vec_t* restrict, vec_t* restrict);
+bool geoall_eval(double, const vec_t, vec_t, vec_t);
 
 /* Geopotential and geomagnetic force model
  * :param size_t size:

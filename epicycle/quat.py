@@ -10,23 +10,14 @@ from . import libmath, p_vec_t, p_mat_t, quat_t, p_quat_t
 # exports
 __all__ = (
     "quat_t", "p_quat_t",
-    "zero", "one",
-    "pos", "neg", "conj",
+    "one",
+    "neg", "conj",
     "norm", "inv", "unit",
-    "iszero", "isunit",
     "add", "sub",
     "muls", "mulv", "vmul", "mul",
     "pow", "log",
     "rot_mat", "irot_mat",
 )
-
-
-# void quat_zero(quat_t*)
-libmath.quat_zero.argtypes = [p_quat_t]
-def zero():
-    q = numpy.empty((4,), dtype=numpy.float64)
-    libmath.quat_zero(q)
-    return q
 
 
 # void quat_one(quat_t*)
@@ -35,15 +26,6 @@ def one():
     q = numpy.empty((4,), dtype=numpy.float64)
     libmath.quat_one(q)
     return q
-
-
-# void quat_pos(quat_t*, quat_t*)
-libmath.quat_pos.argtypes = [p_quat_t, p_quat_t]
-def pos(p):
-    q = numpy.empty((4,), dtype=numpy.float64)
-    libmath.quat_pos(p, q)
-    return q
-
 
 # void quat_neg(quat_t*, quat_t*)
 libmath.quat_neg.argtypes = [p_quat_t, p_quat_t]
@@ -86,20 +68,6 @@ def unit(p):
     if not libmath.quat_unit(p, q):
         raise ZeroDivisionError
     return q
-
-
-# bool quat_iszero(quat_t*)
-libmath.quat_iszero.argtypes = [p_quat_t]
-libmath.quat_iszero.restype = ctypes.c_bool
-def iszero(q):
-    return libmath.quat_iszero(q)
-
-
-# bool quat_isunit(quat_t*)
-libmath.quat_isunit.argtypes = [p_quat_t]
-libmath.quat_isunit.restype = ctypes.c_bool
-def isunit(q):
-    return libmath.quat_isunit(q)
 
 
 # void quat_add(quat_t*, quat_t*, quat_t*)

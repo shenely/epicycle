@@ -16,7 +16,7 @@ extern const double Jm[(G_DEG+1)*(G_DEG+2)/2][2];
 extern const double Km[(G_DEG+1)*(G_DEG+2)/2];
 
 /* Evalute geomagnetic force model */
-bool geomag_eval(const vec_t*, vec_t* restrict);
+bool geomag_eval(const vec_t, vec_t);
 
 /* Geomagnetic force model
  * :param size_t size:

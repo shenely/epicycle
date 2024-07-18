@@ -9,43 +9,6 @@ import pytest
 from epicycle import gvec
 
 
-def test_gvec_zero():
-    v_bar = gvec.zero()
-    assert v_bar[0] == 0.0
-    assert v_bar[1] == 0.0
-    assert v_bar[2] == 0.0
-    assert v_bar[3] == 0.0
-    assert v_bar[4] == 0.0
-    assert v_bar[5] == 0.0
-    assert v_bar[6] == 0.0
-    assert v_bar[7] == 0.0
-    assert v_bar[8] == 0.0
-    assert v_bar[9] == 0.0
-    assert v_bar[10] == 0.0
-    assert v_bar[11] == 0.0
-    assert v_bar[12] == 0.0
-
-
-def test_gvec_pos():
-    u_bar = numpy.array(
-        [1.0, -2.0, 3.0, -4.0, 5.0, -6.0, 7.0, -6.0, 5.0, -4.0, 3.0, -2.0, 1.0]
-    )
-    v_bar = gvec.pos(u_bar)
-    assert v_bar[0] == 1.0
-    assert v_bar[1] == -2.0
-    assert v_bar[2] == 3.0
-    assert v_bar[3] == -4.0
-    assert v_bar[4] == 5.0
-    assert v_bar[5] == -6.0
-    assert v_bar[6] == 7.0
-    assert v_bar[7] == -6.0
-    assert v_bar[8] == 5.0
-    assert v_bar[9] == -4.0
-    assert v_bar[10] == 3.0
-    assert v_bar[11] == -2.0
-    assert v_bar[12] == 1.0
-
-
 def test_gvec_neg():
     u_bar = numpy.array(
         [1.0, -2.0, 3.0, -4.0, 5.0, -6.0, 7.0, -6.0, 5.0, -4.0, 3.0, -2.0, 1.0]

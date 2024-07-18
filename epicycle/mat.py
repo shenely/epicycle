@@ -10,20 +10,12 @@ from . import libmath, p_vec_t, mat_t, p_mat_t
 # exports
 __all__ = (
     "mat_t", "p_mat_t",
-    "zero", "eye",
-    "pos", "neg",
+    "eye",
+    "neg",
     "tr", "det", "inv", "T",
     "add", "sub",
     "muls", "mul", "mulv", "vmul",
 )
-
-
-# void mat_zero(mat_t*)
-libmath.mat_zero.argtypes = [p_mat_t]
-def zero():
-    A = numpy.empty((3, 3), dtype=numpy.float64)
-    libmath.mat_zero(A)
-    return A
 
 
 # void mat_eye(mat_t*)
@@ -32,14 +24,6 @@ def eye():
     A = numpy.empty((3, 3), dtype=numpy.float64)
     libmath.mat_eye(A)
     return A
-
-
-# void mat_pos(mat_t*, mat_t*)
-libmath.mat_pos.argtypes = [p_mat_t, p_mat_t]
-def pos(A):
-    B = numpy.empty((3, 3), dtype=numpy.float64)
-    libmath.mat_pos(A, B)
-    return B
 
 
 # void mat_neg(mat_t*, mat_t*)

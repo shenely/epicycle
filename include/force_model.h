@@ -163,27 +163,27 @@ bool em(
 
 /* Apply force model
  * :param double x:
- * :param gvec_t* y: input position vector
- * :param gvec_t* f: output force vector
+ * :param gvec_t y: input position vector
+ * :param gvec_t f: output force vector
  * :param size_t nargs: number of arguments
  * :param va_list* vargs: variadic arguments
  */
 void apply_force_model(
-    double, const gvec_t*, gvec_t* restrict,
+    double, const gvec_t, gvec_t,
     size_t, va_list*
 );
 
 /* Adjust time step
- * :param gvec_t* y0: (first) input vector
- * :param gvec_t* y1: (second) input vector
- * :param gvec_t* y2: (third) input vector
+ * :param gvec_t y0: (first) input vector
+ * :param gvec_t y1: (second) input vector
+ * :param gvec_t y2: (third) input vector
  * :param int q: integration order
  * :param size_t nargs: number of arguments
  * :param va_list* vargs: variadic arguments
  */
 bool adjust_time_step(
-    const gvec_t*, const gvec_t*, const gvec_t*,
-    const gvec_t*, const gvec_t*,
+    const gvec_t, const gvec_t, const gvec_t,
+    const gvec_t, const gvec_t,
     int, size_t, va_list*
 );
 

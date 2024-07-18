@@ -20,7 +20,7 @@ static const struct poly_s __thG0 = {.deg=3, .coeff={
 
 void gee_quat_i2f(
     const struct st_s* st,
-    quat_t* restrict q
+    quat_t q
 ) {
     LOG_STATS("gee_quat_i2f", 6, 7, 0);
     double JD = st->clk.t / 86400 + 2440587.5,
@@ -29,14 +29,14 @@ void gee_quat_i2f(
            T0 = (J0 - 2451545) / 36525,
            thG = poly_eval(&__thG0, T0) + 360.98564724 * (UT / 24);
     vec_t foo = {0.0, 0.0, 0.5 * thG * M_PI_180};
-    vec_exp(&foo, q);
+    vec_exp(foo, q);
 }
 
-bool gee_f2d(const vec_t* r_bar, double* lat, double* lon, double* alt) {
+bool gee_f2d(const vec_t r_bar, double* lat, double* lon, double* alt) {
     LOG_STATS("gee_f2d", 5, 14, 5);
-    double p__2 = (*r_bar)[0] * (*r_bar)[0] + (*r_bar)[1] * (*r_bar)[1],
+    double p__2 = r_bar[0] * r_bar[0] + r_bar[1] * r_bar[1],
            p = sqrt(p__2),
-           z = (*r_bar)[2],
+           z = r_bar[2],
            z__2 = z * z,
            e__2 = (2.0 - 1.0 / G_INVF) / G_INVF,
            ae__2 = G_RMAX * e__2,
@@ -53,12 +53,12 @@ bool gee_f2d(const vec_t* r_bar, double* lat, double* lon, double* alt) {
             break;
     }
     if (lat != NULL) *lat = atan(k * z / p);
-    if (lon != NULL) *lon = atan2((*r_bar)[1], (*r_bar)[0]);
+    if (lon != NULL) *lon = atan2(r_bar[1], r_bar[0]);
     if (alt != NULL) *alt = (1.0 / k - inv_k0) * sqrt(p__2 + z__2 * k * k) / e__2;
     return done;
 }
 
-bool inv_sq_law(const vec_t* r_bar, double* r__2, double* g) {
+bool inv_sq_law(const vec_t r_bar, double* r__2, double* g) {
     LOG_STATS("inv_sq_law", 0, 3, 0);
     double r = vec_norm(r_bar);
     if (r < ABSTOL)
@@ -114,28 +114,28 @@ bool gee(
 ) {
     LOG_STATS("gee", 2 * size, 2 * size, 0);
     vec_t c_bar, F_bar, temp;
-    vec_zero(&temp);
-    vec_irot(&st->sys.q, &st->sys.r_bar, &c_bar);
+    vec_zero(temp);
+    vec_irot(st->sys.q, st->sys.r_bar, c_bar);
     for (size_t idx = 0; idx < size; idx++) {
         vec_t r_bar, foo, bar;
-        vec_add(&c_bar, &cfg->obj_lst[idx].r_bar, &r_bar);
+        vec_add(c_bar, cfg->obj_lst[idx].r_bar, r_bar);
         // gravity
         double r__2, g;
-        if (!inv_sq_law(&r_bar, &r__2, &g))
+        if (!inv_sq_law(r_bar, &r__2, &g))
             return false;
         // point mass
-        vec_muls(&r_bar, - st->obj_lst[idx].m * g, &foo);
-        vec_add(&temp, &foo, &temp);
-        vec_cross(&cfg->obj_lst[idx].r_bar, &foo, &bar);
-        vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
+        vec_muls(r_bar, - st->obj_lst[idx].m * g, foo);
+        vec_add(temp, foo, temp);
+        vec_cross(cfg->obj_lst[idx].r_bar, foo, bar);
+        vec_add(in->sys.M_bar, bar, in->sys.M_bar);
         // rigid body
-        dmat_mulv(&st->obj_lst[idx].I_cm, &r_bar, &foo);
-        vec_cross(&r_bar, &foo, &bar);
-        vec_muls(&bar, 3.0 * g / r__2, &bar);
-        vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
+        dmat_mulv(st->obj_lst[idx].I_cm, r_bar, foo);
+        vec_cross(r_bar, foo, bar);
+        vec_muls(bar, 3.0 * g / r__2, bar);
+        vec_add(in->sys.M_bar, bar, in->sys.M_bar);
     }
-    vec_rot(&st->sys.q, &temp, &F_bar);
-    vec_add(&in->sys.F_bar, &F_bar, &in->sys.F_bar);
+    vec_rot(st->sys.q, temp, F_bar);
+    vec_add(in->sys.F_bar, F_bar, in->sys.F_bar);
     return true;
 }
 
@@ -149,29 +149,29 @@ bool gee_fast(
 ) {
     LOG_STATS("gee_fast", 2, 2, 0);
     vec_t r_bar, foo, bar;
-    vec_irot(&st->sys.q, &st->sys.r_bar, &r_bar);
-    vec_add(&r_bar, &out->sys.c_bar, &r_bar);
+    vec_irot(st->sys.q, st->sys.r_bar, r_bar);
+    vec_add(r_bar, out->sys.c_bar, r_bar);
     // gravity
     double r__2, g;
-    if (!inv_sq_law(&r_bar, &r__2, &g))
+    if (!inv_sq_law(r_bar, &r__2, &g))
         return false;
     // point mass
-    vec_muls(&r_bar, - out->sys.m * g, &foo);
-    vec_cross(&out->sys.c_bar, &foo, &bar);
-    vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
-    vec_rot(&st->sys.q, &foo, &bar);
-    vec_add(&in->sys.F_bar, &bar, &in->sys.F_bar);
+    vec_muls(r_bar, - out->sys.m * g, foo);
+    vec_cross(out->sys.c_bar, foo, bar);
+    vec_add(in->sys.M_bar, bar, in->sys.M_bar);
+    vec_rot(st->sys.q, foo, bar);
+    vec_add(in->sys.F_bar, bar, in->sys.F_bar);
     // rigid body
-    mat_mulv(&out->sys.I_cm, &r_bar, &foo);
-    vec_cross(&r_bar, &foo, &bar);
-    vec_muls(&bar, 3.0 * g / r__2, &bar);
-    vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
+    mat_mulv(out->sys.I_cm, r_bar, foo);
+    vec_cross(r_bar, foo, bar);
+    vec_muls(bar, 3.0 * g / r__2, bar);
+    vec_add(in->sys.M_bar, bar, in->sys.M_bar);
     return true;
 }
 
 bool geoall_eval(
-    double m, const vec_t* r_bar,
-    vec_t* restrict F_bar, vec_t* restrict B_bar
+    double m, const vec_t r_bar,
+    vec_t F_bar, vec_t B_bar
 ) {
     LOG_STATS("geoall_eval", 17, 37, 2);
     double r__2;
@@ -180,14 +180,14 @@ bool geoall_eval(
     // convert position to spherical coordinates
     double g = G_MU * m / r__2,
            r = sqrt(r__2),
-           a = sqrt((*r_bar)[0] * (*r_bar)[0] + (*r_bar)[1] * (*r_bar)[1]) / r,
-           x, y, z = (*r_bar)[2] / r;
+           a = sqrt(r_bar[0] * r_bar[0] + r_bar[1] * r_bar[1]) / r,
+           x, y, z = r_bar[2] / r;
     if (a > ABSTOL) {
-        x = (*r_bar)[0] / r / a;
-        y = (*r_bar)[1] / r / a;
+        x = r_bar[0] / r / a;
+        y = r_bar[1] / r / a;
     } else {
-        x = (*r_bar)[0] / r * a;
-        y = (*r_bar)[1] / r * a;
+        x = r_bar[0] / r * a;
+        y = r_bar[1] / r * a;
     }
     // calculate spherical harmonics
     double R[MAX(G_DEG,2)+1], C[G_ORD+1], S[G_ORD+1],
@@ -221,12 +221,12 @@ bool geoall_eval(
     B_dot_th *= - R[2];
     B_dot_ph /= - R[2] * ((a > ABSTOL) ? a : z);
     // convert force to cartesian coordinates
-    (*F_bar)[0] = x * (a * F_dot_r + z * F_dot_th) - y * F_dot_ph;
-    (*F_bar)[1] = y * (a * F_dot_r + z * F_dot_th) + x * F_dot_ph;
-    (*F_bar)[2] = z * F_dot_r - a * F_dot_th;
-    (*B_bar)[0] = x * (a * B_dot_r + z * B_dot_th) - y * B_dot_ph;
-    (*B_bar)[1] = y * (a * B_dot_r + z * B_dot_th) + x * B_dot_ph;
-    (*B_bar)[2] = z * B_dot_r - a * B_dot_th;
+    F_bar[0] = x * (a * F_dot_r + z * F_dot_th) - y * F_dot_ph;
+    F_bar[1] = y * (a * F_dot_r + z * F_dot_th) + x * F_dot_ph;
+    F_bar[2] = z * F_dot_r - a * F_dot_th;
+    B_bar[0] = x * (a * B_dot_r + z * B_dot_th) - y * B_dot_ph;
+    B_bar[1] = y * (a * B_dot_r + z * B_dot_th) + x * B_dot_ph;
+    B_bar[2] = z * B_dot_r - a * B_dot_th;
     return true;
 }
 
@@ -240,27 +240,27 @@ bool geoall(
 ) {
     LOG_STATS("geoall", 0, 0, 0);
     double r__2;
-    if (!inv_sq_law(&st->sys.r_bar, &r__2, NULL))
+    if (!inv_sq_law(st->sys.r_bar, &r__2, NULL))
         return false;
     // rotate position into ECEF frame
     quat_t q_i2f;
     vec_t r_bar, F_bar, M_bar, B_bar;
-    gee_quat_i2f(st, &q_i2f);
-    vec_rot(&st->sys.q, &out->sys.c_bar, &r_bar);
-    vec_add(&st->sys.r_bar, &r_bar, &r_bar);
-    vec_irot(&q_i2f, &r_bar, &r_bar);
+    gee_quat_i2f(st, q_i2f);
+    vec_rot(st->sys.q, out->sys.c_bar, r_bar);
+    vec_add(st->sys.r_bar, r_bar, r_bar);
+    vec_irot(q_i2f, r_bar, r_bar);
     
-    if (!geoall_eval(out->sys.m, &r_bar, &F_bar, &B_bar))
+    if (!geoall_eval(out->sys.m, r_bar, F_bar, B_bar))
         return false;
         
     // rotate force into ECI frame
-    vec_rot(&q_i2f, &F_bar, &F_bar);
-    vec_add(&in->sys.F_bar, &F_bar, &in->sys.F_bar);
-    vec_irot(&st->sys.q, &F_bar, &F_bar);
-    vec_cross(&out->sys.c_bar, &F_bar, &M_bar);
-    vec_add(&in->sys.M_bar, &M_bar, &in->sys.M_bar);
-    vec_rot(&q_i2f, &B_bar, &B_bar);
-    vec_add(&em->sys.B_bar, &B_bar, &em->sys.B_bar);
+    vec_rot(q_i2f, F_bar, F_bar);
+    vec_add(in->sys.F_bar, F_bar, in->sys.F_bar);
+    vec_irot(st->sys.q, F_bar, F_bar);
+    vec_cross(out->sys.c_bar, F_bar, M_bar);
+    vec_add(in->sys.M_bar, M_bar, in->sys.M_bar);
+    vec_rot(q_i2f, B_bar, B_bar);
+    vec_add(em->sys.B_bar, B_bar, em->sys.B_bar);
     return true;
 }
 

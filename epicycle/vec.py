@@ -10,32 +10,14 @@ from . import libmath, vec_t, p_vec_t, p_quat_t, p_mat_t
 # exports
 __all__ = (
     "vec_t", "p_vec_t",
-    "zero",
-    "pos", "neg",
+    "neg",
     "norm", "unit",
-    "iszero", "isunit",
     "add", "sub",
     "muls", "dot", "cross", "omul",
     "cross_mat",
     "exp",
     "rot", "irot",
 )
-
-
-# void vec_zero(vec_t*)
-libmath.vec_zero.argtypes = [p_vec_t]
-def zero():
-    v_bar = numpy.empty((3,), dtype=numpy.float64)
-    libmath.vec_zero(v_bar)
-    return v_bar
-
-
-# void vec_pos(vec_t*, vec_t*)
-libmath.vec_pos.argtypes = [p_vec_t, p_vec_t]
-def pos(u_bar):
-    v_bar = numpy.empty((3,), dtype=numpy.float64)
-    libmath.vec_pos(u_bar, v_bar)
-    return v_bar
 
 
 # void vec_neg(vec_t*, vec_t*)
@@ -61,20 +43,6 @@ def unit(u_bar):
     if not libmath.vec_unit(u_bar, u_hat):
         raise ZeroDivisionError
     return u_hat
-
-
-# bool vec_iszero(vec_t*)
-libmath.vec_iszero.argtypes = [p_vec_t]
-libmath.vec_iszero.restype = ctypes.c_bool
-def iszero(v_bar):
-    return libmath.vec_iszero(v_bar)
-
-
-# bool vec_isunit(vec_t*)
-libmath.vec_isunit.argtypes = [p_vec_t]
-libmath.vec_isunit.restype = ctypes.c_bool
-def isunit(v_bar):
-    return libmath.vec_isunit(v_bar)
 
 
 # void vec_add(vec_t*, vec_t*, vec_t*)

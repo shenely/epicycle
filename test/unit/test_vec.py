@@ -9,21 +9,6 @@ import pytest
 from epicycle import vec
 
 
-def test_vec_zero():
-    v_bar = vec.zero()
-    assert v_bar[0] == 0.0
-    assert v_bar[1] == 0.0
-    assert v_bar[2] == 0.0
-
-
-def test_vec_pos():
-    u_bar = numpy.array([3.0, -4.0, 5.0])
-    v_bar = vec.pos(u_bar)
-    assert v_bar[0] == 3.0
-    assert v_bar[1] == -4.0
-    assert v_bar[2] == 5.0
-
-
 def test_vec_neg():
     u_bar = numpy.array([3.0, -4.0, 5.0])
     v_bar = vec.neg(u_bar)
@@ -50,34 +35,6 @@ def test_vec_unit_bad():
     o_bar = numpy.zeros((3,))
     with pytest.raises(ZeroDivisionError):
         vec.unit(o_bar)
-
-
-def test_vec_iszero():
-    q = numpy.array([0.0, 0.0, 0.0])
-    assert vec.iszero(q)
-
-
-def test_vec_not_iszero():
-    q = numpy.array([
-        math.sqrt(0.2),
-        math.sqrt(0.3),
-        math.sqrt(0.5)
-    ])
-    assert not vec.iszero(q)
-
-
-def test_vec_isunit():
-    q = numpy.array([
-        math.sqrt(0.2),
-        math.sqrt(0.3),
-        math.sqrt(0.5)
-    ])
-    assert vec.isunit(q)
-
-
-def test_quat_not_isunit():
-    q = numpy.array([0.0, 0.0, 0.0])
-    assert not vec.isunit(q)
 
 
 def test_vec_add():

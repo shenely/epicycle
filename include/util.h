@@ -20,7 +20,7 @@
  * :param void* A: first pointer
  * :param void* B: second pointer
  */
-inline void SWAP(void* A, void* B)
+static inline void SWAP(void* A, void* B)
 {
     intptr_t temp = *((intptr_t*) A);
     *((intptr_t*) A) = *((intptr_t*) B);

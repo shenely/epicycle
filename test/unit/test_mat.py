@@ -9,19 +9,6 @@ import pytest
 from epicycle import mat
 
 
-def test_mat_zero():
-    O = mat.zero()
-    assert O[0][0] == 0.0
-    assert O[0][1] == 0.0
-    assert O[0][2] == 0.0
-    assert O[1][0] == 0.0
-    assert O[1][1] == 0.0
-    assert O[1][2] == 0.0
-    assert O[2][0] == 0.0
-    assert O[2][1] == 0.0
-    assert O[2][2] == 0.0
-
-
 def test_mat_eye():
     I = mat.eye()
     assert I[0][0] == 1.0
@@ -33,20 +20,6 @@ def test_mat_eye():
     assert I[2][0] == 0.0
     assert I[2][1] == 0.0
     assert I[2][2] == 1.0
-
-
-def test_mat_pos():
-    A = numpy.array([[1.0, -2.0, 3.0], [-4.0, 5.0, -6.0], [7.0, -8.0, 9.0]])
-    B = mat.pos(A)
-    assert B[0][0] == 1.0
-    assert B[0][1] == -2.0
-    assert B[0][2] == 3.0
-    assert B[1][0] == -4.0
-    assert B[1][1] == 5.0
-    assert B[1][2] == -6.0
-    assert B[2][0] == 7.0
-    assert B[2][1] == -8.0
-    assert B[2][2] == 9.0
 
 
 def test_mat_neg():

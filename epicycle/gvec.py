@@ -11,29 +11,11 @@ from . import libmath, GMAT_NDIM, gvec_t, p_gvec_t, p_gmat_t
 __all__ = (
     "GMAT_NDIM",
     "gvec_t", "p_gvec_t",
-    "zero",
-    "pos", "neg",
-    "iszero", "isunit",
+    "neg",
     "norm", "unit"
     "add", "sub",
     "muls", "dot", "omul",
 )
-
-
-# void gvec_zero(gvec_t*)
-libmath.gvec_zero.argtypes = [p_gvec_t]
-def zero():
-    v_bar = numpy.empty((GMAT_NDIM,), dtype=numpy.float64)
-    libmath.gvec_zero(v_bar)
-    return v_bar
-
-
-# void gvec_pos(gvec_t*, gvec_t*)
-libmath.gvec_pos.argtypes = [p_gvec_t, p_gvec_t]
-def pos(u_bar):
-    v_bar = numpy.empty((GMAT_NDIM,), dtype=numpy.float64)
-    libmath.gvec_pos(u_bar, v_bar)
-    return v_bar
 
 
 # void gvec_neg(gvec_t*, gvec_t*)
@@ -59,20 +41,6 @@ def unit(v_bar):
     if not libmath.gvec_unit(v_bar, v_hat):
         raise ZeroDivisionError
     return v_hat
-
-
-# bool gvec_iszero(gvec_t*)
-libmath.gvec_iszero.argtypes = [p_gvec_t]
-libmath.gvec_iszero.restype = ctypes.c_bool
-def iszero(v_bar):
-    return libmath.gvec_iszero(v_bar)
-
-
-# bool vec_isunit(gvec_t*)
-libmath.gvec_isunit.argtypes = [p_gvec_t]
-libmath.gvec_isunit.restype = ctypes.c_bool
-def isunit(v_bar):
-    return libmath.gvec_isunit(q)
 
 
 # void gvec_add(gvec_t*, gvec_t*, gvec_t*)

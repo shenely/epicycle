@@ -50,20 +50,20 @@ const double Km[(G_DEG+1)*(G_DEG+2)/2] = {
 #endif
 };
 
-bool geomag_eval(const vec_t* r_bar, vec_t* restrict B_bar) {
+bool geomag_eval(const vec_t r_bar, vec_t B_bar) {
     LOG_STATS("geomag_eval", 8, 21, 2);
     double r = vec_norm(r_bar);
     if (r < ABSTOL)
         return false;
     // convert position to spherical coordinates
-    double a = sqrt((*r_bar)[0] * (*r_bar)[0] + (*r_bar)[1] * (*r_bar)[1]) / r,
-           x, y, z = (*r_bar)[2] / r;
+    double a = sqrt(r_bar[0] * r_bar[0] + r_bar[1] * r_bar[1]) / r,
+           x, y, z = r_bar[2] / r;
     if (a > ABSTOL) {
-        x = (*r_bar)[0] / r / a;
-        y = (*r_bar)[1] / r / a;
+        x = r_bar[0] / r / a;
+        y = r_bar[1] / r / a;
     } else {
-        x = (*r_bar)[0] / r * a;
-        y = (*r_bar)[1] / r * a;
+        x = r_bar[0] / r * a;
+        y = r_bar[1] / r * a;
     }
     // calculate spherical harmonics
     double R[MAX(G_DEG,2)+1], C[G_ORD+1], S[G_ORD+1],
@@ -87,9 +87,9 @@ bool geomag_eval(const vec_t* r_bar, vec_t* restrict B_bar) {
     B_dot_th *= - R[2];
     B_dot_ph /= - R[2] * ((a > ABSTOL) ? a : z);
     // convert field to cartesian coordinates
-    (*B_bar)[0] = x * (a * B_dot_r + z * B_dot_th) - y * B_dot_ph;
-    (*B_bar)[1] = y * (a * B_dot_r + z * B_dot_th) + x * B_dot_ph;
-    (*B_bar)[2] = z * B_dot_r - a * B_dot_th;
+    B_bar[0] = x * (a * B_dot_r + z * B_dot_th) - y * B_dot_ph;
+    B_bar[1] = y * (a * B_dot_r + z * B_dot_th) + x * B_dot_ph;
+    B_bar[2] = z * B_dot_r - a * B_dot_th;
     return true;
 }
 
@@ -105,18 +105,18 @@ bool geomag(
     // rotate position into ECEF frame
     quat_t q_i2f;
     vec_t r_bar, B_bar;
-    gee_quat_i2f(st, &q_i2f);
-    vec_rot(&st->sys.q, &out->sys.c_bar, &r_bar);
-    vec_add(&st->sys.r_bar, &r_bar, &r_bar);
-    vec_irot(&q_i2f, &r_bar, &r_bar);
+    gee_quat_i2f(st, q_i2f);
+    vec_rot(st->sys.q, out->sys.c_bar, r_bar);
+    vec_add(st->sys.r_bar, r_bar, r_bar);
+    vec_irot(q_i2f, r_bar, r_bar);
     
-    if (!geomag_eval(&r_bar, &B_bar))
+    if (!geomag_eval(r_bar, B_bar))
         return false;
     
     // rotate field into ECI frame
     vec_t temp;
-    vec_rot(&q_i2f, &B_bar, &temp);
-    vec_add(&em->sys.B_bar, &temp, &em->sys.B_bar);
+    vec_rot(q_i2f, B_bar, temp);
+    vec_add(em->sys.B_bar, temp, em->sys.B_bar);
     return true;
 }
 

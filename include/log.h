@@ -49,6 +49,8 @@ extern long stats_total_add,
 #else
 #define LOG_TRACE(...)
 #define LOG_DEBUG(...)
+#define START_CLOCK()
+#define STOP_CLOCK()
 #define LOG_STATS(name, add, mul, pow)
 #define RESET_STATS()
 #define SHOW_STATS()

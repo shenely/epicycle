@@ -16,7 +16,7 @@ extern const double Jg[(G_DEG+1)*(G_DEG+2)/2][2];
 extern const double Kg[(G_DEG+1)*(G_DEG+2)/2];
 
 /* Evalute geopotential force model */
-bool geopot_eval(double, const vec_t*, vec_t* restrict);
+bool geopot_eval(double, const vec_t, vec_t);
 
 /* Geopotential force model
  * :param size_t size:

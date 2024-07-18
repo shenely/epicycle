@@ -31,9 +31,9 @@ struct force_model_s force_model = {
     .accum_fun=apply_force_model,
     .abstol={
         .r_bar={1.0e-3, 1.0e-3, 1.0e-3},
-        .q={M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2},
+        .q={M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2},
         .v_bar={1.0e-3, 1.0e-3, 1.0e-3},
-        .om_bar={M_ARCSEC, M_ARCSEC, M_ARCSEC}
+        .om_bar={M_ARCMIN, M_ARCMIN, M_ARCMIN}
     },
     .reltol={
         .r_bar={1.0e-9, 1.0e-9, 1.0e-9},
@@ -200,17 +200,17 @@ int main(int argc, char ** argv) {
             do solve_st_dot(*size, cfg, prev, next, in);
             while (
                 !solve_ivp(
-                    prev->clk.t, (gvec_t*) &prev->sys,
-                    next->clk.t, (gvec_t*) &next->sys,
+                    prev->clk.t, (double*) &prev->sys,
+                    next->clk.t, (double*) &next->sys,
                     ode_meth,  // default `ode_meth_t`
                     force_model.accum_fun,
                     force_model.step_fun,
-                    &force_model.abstol.st,
-                    &force_model.reltol.st, 
+                    force_model.abstol.st,
+                    force_model.reltol.st, 
                     9, *size, cfg, prev, next, curr, in, out, em, &force_model
                 )
             );
-            quat_unit(&next->sys.q, &next->sys.q); // XXX hack
+            quat_unit(next->sys.q, next->sys.q); // XXX hack
             next->clk.n = prev->clk.n + 1;
         }
         curr->clk.n = MAX(st->clk.n + 1, next->clk.n);

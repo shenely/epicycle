@@ -172,44 +172,44 @@ bool stdatm(
     struct em_s* restrict em __attribute__((unused))
 ) {
     LOG_STATS("stdatm", 0, 0, 0);
-    double v = vec_norm(&st->sys.v_bar), z, A, F;
+    double v = vec_norm(st->sys.v_bar), z, A, F;
     vec_t v_bar, foo, bar;
     struct atm_s atm;
-    gee_f2d(&st->sys.r_bar, NULL, NULL, &z);
+    gee_f2d(st->sys.r_bar, NULL, NULL, &z);
     if (!stdatm_eval(z, &atm))
         return true;
-    vec_irot(&st->sys.q, &st->sys.v_bar, &v_bar);
-    vec_zero(&foo);
+    vec_irot(st->sys.q, st->sys.v_bar, v_bar);
+    vec_zero(foo);
     for (size_t idx = 0; idx < size; idx++) {
         LOG_STATS("stdatm", 3, 12, 0);
         vec_t temp;
         // x-axis
-        vec_rot(&cfg->obj_lst[idx].q, &i_hat, &temp);
+        vec_rot(cfg->obj_lst[idx].q, i_hat, temp);
         A = cfg->obj_lst[idx].bbox[1] * cfg->obj_lst[idx].bbox[2];
-        F = atm.rho * v * vec_dot(&v_bar, &temp) * A;
-        vec_muls(&temp, - F, &temp);
-        vec_add(&foo, &temp, &foo);
-        vec_cross(&cfg->obj_lst[idx].r_bar, &temp, &bar);
-        vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
+        F = atm.rho * v * vec_dot(v_bar, temp) * A;
+        vec_muls(temp, - F, temp);
+        vec_add(foo, temp, foo);
+        vec_cross(cfg->obj_lst[idx].r_bar, temp, bar);
+        vec_add(in->sys.M_bar, bar, in->sys.M_bar);
         // y-axis
-        vec_rot(&cfg->obj_lst[idx].q, &j_hat, &temp);
+        vec_rot(cfg->obj_lst[idx].q, j_hat, temp);
         A = cfg->obj_lst[idx].bbox[2] * cfg->obj_lst[idx].bbox[0];
-        F = atm.rho * v * vec_dot(&v_bar, &temp) * A;
-        vec_muls(&temp, - F, &temp);
-        vec_add(&foo, &temp, &foo);
-        vec_cross(&cfg->obj_lst[idx].r_bar, &temp, &bar);
-        vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
+        F = atm.rho * v * vec_dot(v_bar, temp) * A;
+        vec_muls(temp, - F, temp);
+        vec_add(foo, temp, foo);
+        vec_cross(cfg->obj_lst[idx].r_bar, temp, bar);
+        vec_add(in->sys.M_bar, bar, in->sys.M_bar);
         // z-axis
-        vec_rot(&cfg->obj_lst[idx].q, &k_hat, &temp);
+        vec_rot(cfg->obj_lst[idx].q, k_hat, temp);
         A = cfg->obj_lst[idx].bbox[0] * cfg->obj_lst[idx].bbox[1];
-        F = atm.rho * v * vec_dot(&v_bar, &temp) * A;
-        vec_muls(&temp, - F, &temp);
-        vec_add(&foo, &temp, &foo);
-        vec_cross(&cfg->obj_lst[idx].r_bar, &temp, &bar);
-        vec_add(&in->sys.M_bar, &bar, &in->sys.M_bar);
+        F = atm.rho * v * vec_dot(v_bar, temp) * A;
+        vec_muls(temp, - F, temp);
+        vec_add(foo, temp, foo);
+        vec_cross(cfg->obj_lst[idx].r_bar, temp, bar);
+        vec_add(in->sys.M_bar, bar, in->sys.M_bar);
     }
-    vec_rot(&st->sys.q, &foo, &bar);
-    vec_add(&in->sys.F_bar, &bar, &in->sys.F_bar);
+    vec_rot(st->sys.q, foo, bar);
+    vec_add(in->sys.F_bar, bar, in->sys.F_bar);
     return true;
 }
 

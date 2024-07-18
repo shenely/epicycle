@@ -11,20 +11,12 @@ from . import libmath, GMAT_NDIM, p_gvec_t, gmat_t, p_gmat_t
 __all__ = (
     "GMAT_NDIM",
     "gmat_t", "p_gmat_t",
-    "zero", "eye",
-    "pos", "neg",
+    "eye",
+    "neg",
     "tr", "T",
     "add", "sub",
     "muls", "mul", "mulv", "vmul",
 )
-
-
-# void gmat_zero(mat_t*)
-libmath.gmat_zero.argtypes = [p_gmat_t]
-def zero():
-    A = numpy.empty((GMAT_NDIM, GMAT_NDIM), dtype=numpy.float64)
-    libmath.gmat_zero(A)
-    return A
 
 
 # void gmat_eye(gmat_t*)
@@ -33,14 +25,6 @@ def eye():
     A = numpy.empty((GMAT_NDIM, GMAT_NDIM), dtype=numpy.float64)
     libmath.gmat_eye(A)
     return A
-
-
-# void gmat_pos(gmat_t*, gmat_t*)
-libmath.gmat_pos.argtypes = [p_gmat_t, p_gmat_t]
-def pos(A):
-    B = numpy.empty((GMAT_NDIM, GMAT_NDIM), dtype=numpy.float64)
-    libmath.gmat_pos(A, B)
-    return B
 
 
 # void gmat_neg(gmat_t*, gmat_t*)
