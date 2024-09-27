@@ -30,16 +30,20 @@ struct force_model_s force_model = {
     .size=0,
     .accum_fun=apply_force_model,
     .abstol={
-        .r_bar={1.0e-3, 1.0e-3, 1.0e-3},
-        .q={M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2},
-        .v_bar={1.0e-3, 1.0e-3, 1.0e-3},
-        .om_bar={M_ARCMIN, M_ARCMIN, M_ARCMIN}
+        .st={
+            .r_bar={1.0e-3, 1.0e-3, 1.0e-3},
+            .q={M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2},
+            .v_bar={1.0e-3, 1.0e-3, 1.0e-3},
+            .om_bar={M_ARCMIN, M_ARCMIN, M_ARCMIN}
+        }
     },
     .reltol={
-        .r_bar={1.0e-9, 1.0e-9, 1.0e-9},
-        .q={M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2},
-        .v_bar={1.0e-6, 1.0e-6, 1.0e-6},
-        .om_bar={M_ARCSEC, M_ARCSEC, M_ARCSEC}
+        .st={
+            .r_bar={1.0e-9, 1.0e-9, 1.0e-9},
+            .q={M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2},
+            .v_bar={1.0e-6, 1.0e-6, 1.0e-6},
+            .om_bar={M_ARCSEC, M_ARCSEC, M_ARCSEC}
+        }
     }
 };
 
@@ -186,7 +190,7 @@ int main(int argc, char ** argv) {
     bool first = true;
     while (last_signal != SIGINT) {  // TODO exit condition
         if (sem_wait(&shared_data->sem1) != 0)
-            continue;
+            goto sem_wait_failed;
         RESET_STATS();
         START_CLOCK();
         if (first) {
@@ -205,8 +209,8 @@ int main(int argc, char ** argv) {
                     ode_meth,  // default `ode_meth_t`
                     force_model.accum_fun,
                     force_model.step_fun,
-                    force_model.abstol.st,
-                    force_model.reltol.st, 
+                    force_model.abstol.v_bar,
+                    force_model.reltol.v_bar, 
                     9, *size, cfg, prev, next, curr, in, out, em, &force_model
                 )
             );
@@ -217,7 +221,7 @@ int main(int argc, char ** argv) {
         curr->clk.t = ch->clk.t;
         interp_st(*size, prev, next, curr);
         memcpy(st, curr, sizeof(struct st_s));
-        if (solve_ch(*size, ch, st, curr, in, em)) {
+        if (solve_ch(*size, cfg, ch, st, curr, in, em)) {
             solve_st_delta(*size, cfg, curr, st, out);
             memcpy(next, st, sizeof(struct st_s));
         } else
@@ -227,6 +231,7 @@ int main(int argc, char ** argv) {
         sem_post(&shared_data->sem2);
     }
 
+sem_wait_failed:
     sem_destroy(&shared_data->sem1);
     sem_destroy(&shared_data->sem2);
 sem_init_failed:

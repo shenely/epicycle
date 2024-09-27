@@ -6,7 +6,7 @@ from matplotlib import pyplot
 import mpl_toolkits.mplot3d.art3d
 import matplotlib.animation
 
-from epicycle.data_model import data_model_t, ch_t
+from epicycle.data_model import data_model_t, ch_t, obj_t
 from epicycle._epicycle import EpicycleConsole
 
 i_hat = numpy.array([1.0, 0.0, 0.0])
@@ -21,28 +21,32 @@ def setup(console):
         data_model.cfg.clk.delta_t = 1.0
         
         # bus
-        data_model.cfg.obj_lst[0].bbox = numpy.ctypeslib.as_ctypes(
-            numpy.array([0.5, 0.5, 0.5])
+        bus = obj_t(data_model, 0)
+        bus.cfg.sym = "BUS".encode()
+        bus.cfg.bbox = numpy.ctypeslib.as_ctypes(
+            numpy.array([5e-2, 5e-2, 5e-2])
         )
-        data_model.cfg.obj_lst[0].r_bar = numpy.ctypeslib.as_ctypes(
+        bus.cfg.r_bar = numpy.ctypeslib.as_ctypes(
             numpy.array([0.0, 0.0, 0.0])
         )
-        data_model.cfg.obj_lst[0].q = numpy.ctypeslib.as_ctypes(
+        bus.cfg.q = numpy.ctypeslib.as_ctypes(
             numpy.array([1.0, 0.0, 0.0, 0.0])
         )
-        data_model.st.obj_lst[0].m = 48.0
-        data_model.st.obj_lst[0].I_cm = numpy.ctypeslib.as_ctypes(
-            numpy.array([4.0, 4.0, 4.0])
+        bus.st.m = 360e-3
+        bus.st.I_cm = numpy.ctypeslib.as_ctypes(
+            numpy.array([8e-4, 8e-4, 8e-4])
         )
         
         # rw A
-        data_model.cfg.obj_lst[1].bbox = numpy.ctypeslib.as_ctypes(
-            numpy.array([10e-2, 10e-2, 5e-2])
+        rw_a = obj_t(data_model, 1)
+        rw_a.cfg.sym = "RW_A".encode()
+        rw_a.cfg.bbox = numpy.ctypeslib.as_ctypes(
+            numpy.array([25e-2, 25e-2, 15e-2]) / 2
         )
-        data_model.cfg.obj_lst[1].r_bar = numpy.ctypeslib.as_ctypes(
+        rw_a.cfg.r_bar = numpy.ctypeslib.as_ctypes(
             numpy.array([0.2, 0.2, 0.2])
         )
-        data_model.cfg.obj_lst[1].q = numpy.ctypeslib.as_ctypes(
+        rw_a.cfg.q = numpy.ctypeslib.as_ctypes(
             numpy.array([
                 math.cos(math.atan(math.sqrt(2)) / 2),
                 - math.sin(math.atan(math.sqrt(2)) / 2) / math.sqrt(2),
@@ -50,13 +54,9 @@ def setup(console):
                 0.0,
             ])
         )
-        data_model.st.obj_lst[1].m = 0.5
-        data_model.st.obj_lst[1].I_cm = numpy.ctypeslib.as_ctypes(
-            numpy.array([
-                (3 * 10e-2 ** 2 + 5e-2 ** 2) / 12.0,
-                (3 * 10e-2 ** 2 + 5e-2 ** 2) / 12.0,
-                10e-2 ** 2 / 2.0
-            ]) * 0.5
+        rw_a.st.m = 36e-3
+        rw_a.st.I_cm = numpy.ctypeslib.as_ctypes(
+            numpy.array([2.12e-6, 2.12e-6, 3e-3])
         )
         
         # rw B

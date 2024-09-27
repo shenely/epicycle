@@ -82,6 +82,7 @@ def test_interp_st():
 
 
 def test_solve_ch_st():
+    cfg = cfg_t()
     ch = ch_t(
         obj_lst=(
             ch_t.obj_t(
@@ -115,7 +116,7 @@ def test_solve_ch_st():
         ),
     )
     next = st_t()
-    assert solve_ch(1, ch, prev, next, None, None)
+    assert solve_ch(1, cfg, ch, prev, next, None, None)
     m = next.obj_lst[0].m
     I_cm = numpy.ctypeslib.as_array(next.obj_lst[0].I_cm)
     p_bar = numpy.ctypeslib.as_array(next.obj_lst[0].p_bar)
@@ -133,6 +134,7 @@ def test_solve_ch_st():
 
 
 def test_solve_ch_in():
+    cfg = cfg_t()
     ch = ch_t(
         obj_lst=(
             ch_t.obj_t(
@@ -150,7 +152,7 @@ def test_solve_ch_in():
         ),
     )
     in_ = in_t()
-    assert solve_ch(1, ch, None, None, in_, None)
+    assert solve_ch(1, cfg, ch, None, None, in_, None)
     m_dot = in_.obj_lst[0].m_dot
     F_bar = numpy.ctypeslib.as_array(in_.obj_lst[0].F_bar)
     M_bar = numpy.ctypeslib.as_array(in_.obj_lst[0].M_bar)
@@ -164,6 +166,7 @@ def test_solve_ch_in():
 
 
 def test_solve_ch_em():
+    cfg = cfg_t()
     ch = ch_t(
         obj_lst=(
             ch_t.obj_t(
@@ -181,7 +184,7 @@ def test_solve_ch_em():
         ),
     )
     em = em_t()
-    assert solve_ch(1, ch, None, None, None, em)
+    assert solve_ch(1, cfg, ch, None, None, None, em)
     q = em.obj_lst[0].q
     p_bar = numpy.ctypeslib.as_array(em.obj_lst[0].p_bar)
     m_bar = numpy.ctypeslib.as_array(em.obj_lst[0].m_bar)

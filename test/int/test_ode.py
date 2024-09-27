@@ -8,7 +8,7 @@ import numpy.ctypeslib
 import pytest
 
 # internal libraries
-from epicycle import libcore, libgee
+from epicycle import libcore, libgee, ODE_EULER
 from epicycle import vec
 from epicycle import quat
 from epicycle import gvec
@@ -16,6 +16,10 @@ from epicycle import ode
 from epicycle.gee import G_MU
 from epicycle.data_model import *
 from epicycle.force_model import force_model_t
+
+
+mark_ode_euler = pytest.mark.skipif(
+    not ODE_EULER, reason="Euler methods not implemented")
 
 
 def test_solve_ivp():
@@ -117,12 +121,12 @@ def test_solve_ivp():
 
 
 @pytest.mark.parametrize("method", (
-    ode.solve_ivp_with_euler,
+    pytest.param(ode.solve_ivp_with_euler, marks=mark_ode_euler),
     # ode.solve_ivp_with_verlet,
     ode.solve_ivp_with_rk4,
-    ode.solve_ivp_with_heuler,
+    pytest.param(ode.solve_ivp_with_heuler, marks=mark_ode_euler),
     # ode.solve_ivp_with_dopri,
-    ode.solve_ivp_with_beuler,
+    pytest.param(ode.solve_ivp_with_beuler, marks=mark_ode_euler),
     # ode.solve_ivp_with_midp,
     # ode.solve_ivp_with_vgl4,
     # ode.solve_ivp_with_vgl6,

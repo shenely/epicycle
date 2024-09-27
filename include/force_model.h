@@ -89,6 +89,7 @@ void solve_st_delta(
 
 /* Solve change structure
  * :param size_t size:
+ * :param cfg_t* cfg: config structure
  * :param ch_t* ch: change structure
  * :param st_t* prev: previous state structure
  * :param st_t* next: current state structure
@@ -97,6 +98,7 @@ void solve_st_delta(
  */
 bool solve_ch(
     size_t,
+    const struct cfg_s*,
     struct ch_s* restrict,
     const struct st_s*,
     struct st_s* restrict,

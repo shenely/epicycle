@@ -39,6 +39,10 @@ struct data_model_s {
             double delta_t;
         } clk;
         struct {
+            char sym[4];
+        } sys;
+        struct {
+            char sym[4];
             dmat_t bbox;  // bounding box
             vec_t r_bar;  // position vector
             quat_t q;  // attitude quaternion
@@ -84,7 +88,7 @@ struct data_model_s {
                     vec_t p_bar;  // electric dipole moment
                     vec_t m_bar;  // magnetic dipole moment
                 } em;
-            };
+            } u;
         } obj_lst[MAX_OBJ_COUNT];
     } ch;
     struct in_s {
@@ -130,8 +134,8 @@ union tol_u {
         quat_t q;
         vec_t v_bar;
         vec_t om_bar;
-    };
-    gvec_t st;
+    } st;
+    gvec_t v_bar;
 };
 
 #endif  // __DATA_MODEL_H__

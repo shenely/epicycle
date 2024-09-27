@@ -50,8 +50,8 @@ EpicycleConsole_getbuffer(
     Py_buffer* view,
     int flags
 ) {
-    static ssize_t shape = {sizeof(struct data_model_s)},
-                   strides = {1};
+    static ssize_t shape = sizeof(struct data_model_s),
+                   strides = 1;
     view->buf        = self->shared_data->data;
     view->len        = sizeof(struct data_model_s);
     view->readonly   = self->mode != 'w';
@@ -171,8 +171,7 @@ static PyModuleDef EpicycleModule = {
     .m_size = -1,
 };
 
-PyMODINIT_FUNC PyInit__epicycle(void)
-{
+PyMODINIT_FUNC PyInit__epicycle(void) {
     if (PyType_Ready(&EpicycleConsoleType) < 0)
         return NULL;
 

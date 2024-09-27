@@ -31,13 +31,7 @@ struct atm_s {  // atmosphere condiion structure
 struct uasa20_s { // unofficial Australian standard atmosphere
     double z;
     double q;
-    union {
-        struct {
-            size_t n;
-            double a[4];
-        };
-        struct poly_s p;
-    };
+    struct poly_s p;
 };
 
 /* Initialize standard atmosphere */

@@ -1,5 +1,6 @@
 # built-in libraries
 import ctypes
+import dataclasses
 import enum
 
 # external libraries
@@ -33,8 +34,14 @@ class cfg_t(ctypes.Structure):
             ("delta_t", ctypes.c_double),
         ]
         
+    class sys_t(ctypes.Structure):
+        _fields_ = [
+            ("sym", ctypes.c_char * 4),
+        ]
+        
     class obj_t(ctypes.Structure):
         _fields_ = [
+            ("sym", ctypes.c_char * 4),
             ("bbox", dmat_t),
             ("r_bar", vec_t),
             ("q", quat_t),
@@ -42,6 +49,7 @@ class cfg_t(ctypes.Structure):
     
     _fields_ = [
         ("clk", clk_t),
+        ("sys", sys_t),
         ("obj_lst", obj_t * MAX_OBJ_COUNT),
     ]
 
@@ -207,11 +215,58 @@ class data_model_t(ctypes.Structure):
     ]
 
 
+@dataclasses.dataclass
+class clk_t:
+    data_model: dataclasses.InitVar[data_model_t]
+    cfg: cfg_t.clk_t = dataclasses.field(init=False)
+    st: st_t.clk_t = dataclasses.field(init=False)
+    ch: ch_t.clk_t = dataclasses.field(init=False)
+    
+    def __post_init__(self, data_model: data_model_t):
+        self.cfg = data_model.cfg.clk
+        self.st = data_model.st.clk
+        self.ch = data_model.ch.clk
+
+
+@dataclasses.dataclass
+class sys_t:
+    data_model: dataclasses.InitVar[data_model_t]
+    cfg: cfg_t.sys_t = dataclasses.field(init=False)
+    st: st_t.sys_t = dataclasses.field(init=False)
+    in_: in_t.sys_t = dataclasses.field(init=False)
+    out: out_t.sys_t = dataclasses.field(init=False)
+    em: em_t.sys_t = dataclasses.field(init=False)
+    
+    def __post_init__(self, data_model: data_model_t):
+        self.cfg = data_model.cfg.sys
+        self.st = data_model.st.sys
+        self.in_ = data_model.in_.sys
+        self.out = data_model.out.sys
+        self.em = data_model.em.sys
+
+
+@dataclasses.dataclass
+class obj_t:
+    data_model: dataclasses.InitVar[data_model_t]
+    idx: dataclasses.InitVar[int]
+    cfg: cfg_t.obj_t = dataclasses.field(init=False)
+    st: st_t.obj_t = dataclasses.field(init=False)
+    ch: ch_t.obj_t = dataclasses.field(init=False)
+    in_: in_t.obj_t = dataclasses.field(init=False)
+    em: em_t.obj_t = dataclasses.field(init=False)
+    
+    def __post_init__(self, data_model: data_model_t, idx: int):
+        self.cfg = data_model.cfg.obj_lst[idx]
+        self.st = data_model.st.obj_lst[idx]
+        self.ch = data_model.ch.obj_lst[idx]
+        self.in_ = data_model.in_.obj_lst[idx]
+        self.em = data_model.em.obj_lst[idx]
+
+
 class tol_t(ctypes.Union):
-    _anonymous_ = ("S",)
     _fields_ = [
-        ("S", st_t.sys_t),
-        ("gvec", gvec_t),
+        ("st", st_t.sys_t),
+        ("v_bar", gvec_t),
     ]
 
 

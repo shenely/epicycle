@@ -116,11 +116,11 @@ FUNCTION_ODE_METHOD(rk4)
 {
     LOG_STATS("ode_rk4", 4, 3, 0);
     static const double A[3][3] = {
-        {0.5},
-        {0,0, 0.5},
+        {0.5          },
+        {0,0, 0.5     },
         {0.0, 0.0, 1.0},
     };
-    static const double b_bar[4] = {1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 6.0};
+    static const double b_bar[4] = {0.16666666666666666, 0.33333333333333333, 0.33333333333333333, 0.16666666666666666};
     static const double c_bar[3] = {0.5, 0.5, 1.0};
     
     double delta_x = x1 - x0;
@@ -136,14 +136,14 @@ FUNCTION_ODE_METHOD(rk4)
     // k[2] = f(x0 + h / 2, y0 + h * k[1] / 2)
     // k[3] = f(x0 + h, y0 + h * k[2])
      for (size_t i = 0; i < 3; i++) {
-        __apply_stage(i+1, A[i], delta_x, y0, y, k);
+        __apply_stage(i+1, A[i], delta_x, y0, y, (void*)k);
         va_copy(cargs, *vargs);
         fun(x0 + c_bar[i] * delta_x, y, k[i+1], nargs, &cargs);
         va_end(cargs);
     }
     
     // y1 = y0 + h * (k[0] / 6 + k[1] / 3 + k[2] / 3 + k[3] / 6)
-     __apply_stage(4, b_bar, delta_x, y0, y1, k);
+     __apply_stage(4, b_bar, delta_x, y0, y1, (void*)k);
     return true;
 }
 
@@ -179,15 +179,15 @@ FUNCTION_ODE_METHOD(dopri)
 {
     LOG_STATS("ode_dopri", 7, 6, 0);
     static const double A[6][6] = {
-        {0.2},
-        {0.075, 0.225},
-        {44.0 / 45.0, -56.0 / 15.0, 32.0 / 9.0},
-        {19372.0 / 6561.0, -25360.0 / 2187.0, 64448.0 / 6561.0, -212.0 / 729.0},
-        {9017.0 / 3168.0, -355.0 / 33.0, 46732.0 / 5247.0, 49.0 / 176.0, -5103.0 / 18656.0},
-        {35.0 / 384.0, 0.0, 500.0 / 1113.0, 125.0 / 192.0, -2187.0 / 6784.0, 11.0 / 84.0}
+        {+0.2                },
+        {+0.075              , +0.225             },
+        {+0.9777777777777777 , -3.7333333333333334, +3.5555555555555554 },
+        {+2.9525986892242035 , -11.595793324188385, +9.822892851699436  , -0.2908093278463649},
+        {+2.8462752525252526 , -10.757575757575758, +8.906422717743473  , +0.2784090909090909, -0.2735313036020583},
+        {+0.09114583333333333,  0.0               , +0.44923629829290207, +0.6510416666666666, -0.322376179245283 , +0.13095238095238096}
     };
-    static const double b2_bar[7] = {5179.0 / 57600.0, 0.0, 7571.0 / 16695.0, 393.0 / 640.0, -92097.0 / 339200.0, 187.0 / 2100.0, 0.025};
-    static const double c_bar[6] = {0.2, 0.3, 0.8, 8.0 / 9.0, 1.0, 1.0};
+    static const double b2_bar[7] = {+0.08991319444444444,  0.0, +0.4534890685834082, +0.6140625         , -0.2715123820754717, +0.08904761904761904, +0.025};
+    static const double c_bar[6]  = {+0.2                , +0.3, +0.8               , +0.8888888888888888, +1.0               , +1.0                };
     
     assert(step != NULL);
     double delta_x = x1 - x0;
@@ -226,7 +226,7 @@ FUNCTION_ODE_METHOD(dopri)
      *                    +   11 * k[5] / 84))
      */
      for (size_t i = 0; i < 6; i++) {
-        __apply_stage(i+1, A[i], delta_x, y0, y1, k);
+        __apply_stage(i+1, A[i], delta_x, y0, y1, (void*)k);
         va_copy(cargs, *vargs);
         fun(x0 + c_bar[i] * delta_x, y1, k[i+1], nargs, &cargs);
         va_end(cargs);
@@ -245,7 +245,7 @@ FUNCTION_ODE_METHOD(dopri)
      *                +   187 * k[5] / 2100
      *                +         k[6] / 40))
      */
-     __apply_stage(7, b2_bar, delta_x, y0, y2, k);
+     __apply_stage(7, b2_bar, delta_x, y0, y2, (void*)k);
     return step(y0, y1, y2, abstol, reltol, 4, nargs, vargs);
 }
 
@@ -313,12 +313,12 @@ FUNCTION_ODE_METHOD(vgl4)
 {
     LOG_STATS("ode_vgl4", 1, 0, 0);
     static const double A[2][2] = {
-        {0.25, 0.25 - 0.5 / sqrt(3.0)},
-        {0.25 + 0.5 / sqrt(3.0), 0.25}
+        {+0.25              , -0.03867513459481292},
+        {+0.5386751345948129, +0.25               }
     };
-    static const double b1_bar[2] = {0.5, 0.5};
-    static const double b2_bar[2] = {0.5 * (1.0 + sqrt(3.0)), 0.5 * (1.0 - sqrt(3.0))};
-    static const double c_bar[2] = {0.5 * (1.0 - 1.0 / sqrt(3.0)), 0.5 * (1.0 + 1.0 / sqrt(3.0))};
+    static const double b1_bar[2] = {+0.5                , +0.5               };
+    static const double b2_bar[2] = {+1.3660254037844386 , -0.3660254037844386};
+    static const double c_bar[2]  = {+0.21132486540518708, +0.7886751345948129};
     
     double delta_x = x1 - x0;
     gvec_t k[2], delta_k, y2;
@@ -332,7 +332,7 @@ FUNCTION_ODE_METHOD(vgl4)
         LOG_STATS("ode_vgl4", 27, 27, 0);
         done = true;
         for (size_t i = 0; i < 2; i++) {
-            __apply_stage(2, A[i], delta_x, y0, y2, k);
+            __apply_stage(2, A[i], delta_x, y0, y2, (void*)k);
             va_copy(cargs, *vargs);
             fun(x0 + c_bar[i] * delta_x, y2, delta_k, nargs, &cargs);
             va_end(cargs);
@@ -345,10 +345,10 @@ FUNCTION_ODE_METHOD(vgl4)
         else if (done) break;
     }
     assert(done);
-    __apply_stage(2, b1_bar, delta_x, y0, y1, k);
+    __apply_stage(2, b1_bar, delta_x, y0, y1, (void*)k);
     if (step == NULL)
         return true;
-    __apply_stage(2, b2_bar, delta_x, y0, y2, k);
+    __apply_stage(2, b2_bar, delta_x, y0, y2, (void*)k);
     return step(y0, y1, y2, abstol, reltol, 4, nargs, vargs);
 }
 
@@ -356,13 +356,13 @@ FUNCTION_ODE_METHOD(vgl6)
 {
     LOG_STATS("ode_vgl6", 1, 0, 0);
     static const double A[3][3] = {
-        {5.0 / 36.0, 2.0 / 9.0 - 1.0 / sqrt(15.0), 5.0 / 36.0 - 1.0 / sqrt(15.0) / 2.0},
-        {5.0 / 36.0 + sqrt(15.0) / 24.0, 2.0 / 9.0, 5.0 / 36.0 - sqrt(15.0) / 24.0},
-        {5.0 / 36.0 + 1.0 / sqrt(15.0) / 2.0, 2.0 / 9.0 + 1.0 / sqrt(15.0), 5.0 / 36.0}
+        {+0.1388888888888889 , -0.03597666752493889, +0.009789444015308346},
+        {+0.3002631949808646 , +0.2222222222222222 , -0.022485417203086805},
+        {+0.26798833376246944, +0.4804211119693833 , +0.1388888888888889  }
     };
-    static const double b1_bar[3] = {5.0 / 18.0, 4.0 / 9.0, 5.0 / 18.0};
-    static const double b2_bar[3] = {-5.0 / 6.0, 8.0 / 3.0, -5.0 / 6.0};
-    static const double c_bar[3] = {(1.0 - sqrt(3.0 / 5.0)) / 2.0, 1.0 / 2.0, (1.0 + sqrt(3.0 / 5.0)) / 2.0};
+    static const double b1_bar[3] = {+0.2777777777777778, +0.4444444444444444, +0.2777777777777778};
+    static const double b2_bar[3] = {-0.8333333333333334, +2.6666666666666665, -0.8333333333333334};
+    static const double c_bar[3]  = {+0.1127016653792583, +0.5               , +0.8872983346207417};
     
     double delta_x = x1 - x0;
     gvec_t k[3], delta_k, y2;
@@ -376,7 +376,7 @@ FUNCTION_ODE_METHOD(vgl6)
         LOG_STATS("ode_vgl6", 40, 40, 0);
         done = true;
         for (size_t i = 0; i < 3; i++) {
-            __apply_stage(3, A[i], delta_x, y0, y2, k);
+            __apply_stage(3, A[i], delta_x, y0, y2, (void*)k);
             va_copy(cargs, *vargs);
             fun(x0 + c_bar[i] * delta_x, y2, delta_k, nargs, &cargs);
             va_end(cargs);
@@ -389,10 +389,10 @@ FUNCTION_ODE_METHOD(vgl6)
         else if (done) break;
     }
     assert(done);
-    __apply_stage(3, b1_bar, delta_x, y0, y1, k);
+    __apply_stage(3, b1_bar, delta_x, y0, y1, (void*)k);
     if (step == NULL)
         return true;
-    __apply_stage(3, b2_bar, delta_x, y0, y2, k);
+    __apply_stage(3, b2_bar, delta_x, y0, y2, (void*)k);
     return step(y0, y1, y2, abstol, reltol, 6, nargs, vargs);
 }
 

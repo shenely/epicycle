@@ -112,7 +112,7 @@ void solve_st_delta(
     vec_cross(out->sys.c_bar, prev->sys.om_bar, temp);
     vec_sub(p_bar, temp, p_bar);
     vec_muls(p_bar, out->sys.m, p_bar);
-    mat_mulv(out->sys.I_cm, prev->sys.om_bar, h_bar);
+    mat_mulv((void*) out->sys.I_cm, prev->sys.om_bar, h_bar);
     vec_cross(out->sys.c_bar, p_bar, temp);
     vec_add(h_bar, temp, h_bar);
     for (size_t idx = 0; idx < size; idx++) {
@@ -128,10 +128,10 @@ void solve_st_delta(
     }
     mat_t eye;
     solve_out(size, cfg, next, out);
-    mat_inv(out->sys.I_cm, eye);
+    mat_inv((void*) out->sys.I_cm, eye);
     vec_cross(out->sys.c_bar, p_bar, temp);
     vec_sub(h_bar, temp, h_bar);
-    mat_mulv(eye, h_bar, next->sys.om_bar);
+    mat_mulv((void*) eye, h_bar, next->sys.om_bar);
     vec_cross(out->sys.c_bar, next->sys.om_bar, temp);
     vec_muls(p_bar, 1.0 / out->sys.m, p_bar);
     vec_add(p_bar, temp, p_bar);
@@ -140,6 +140,7 @@ void solve_st_delta(
 
 bool solve_ch(
     size_t size,
+    const struct cfg_s* cfg,
     struct ch_s* restrict ch,
     const struct st_s* prev,
     struct st_s* restrict next,
@@ -150,36 +151,39 @@ bool solve_ch(
     for (size_t idx = 0; idx < size; idx++) {
         switch (ch->obj_lst[idx].T) {
         case E_ST:
+            LOG_WARNING("[E_ST] `%s`", cfg->obj_lst[idx].sym);
             LOG_STATS("solve_ch[E_ST]", 2, 1, 0);
             flag = true;
             next->obj_lst[idx].m = prev->obj_lst[idx].m
-                                 + ch->obj_lst[idx].st.m;
+                                 + ch->obj_lst[idx].u.st.m;
             dmat_muls(prev->obj_lst[idx].I_cm,
-                      next->obj_lst[idx].m / (next->obj_lst[idx].m - ch->obj_lst[idx].st.m),
+                      next->obj_lst[idx].m / (next->obj_lst[idx].m - ch->obj_lst[idx].u.st.m),
                       next->obj_lst[idx].I_cm);
             vec_add(prev->obj_lst[idx].p_bar,
-                    ch->obj_lst[idx].st.p_bar, 
+                    ch->obj_lst[idx].u.st.p_bar, 
                     next->obj_lst[idx].p_bar);
             vec_add(prev->obj_lst[idx].h_bar,
-                    ch->obj_lst[idx].st.h_bar,
+                    ch->obj_lst[idx].u.st.h_bar,
                     next->obj_lst[idx].h_bar);
             break;
         case E_IN:
+            LOG_WARNING("[E_IN] `%s`", cfg->obj_lst[idx].sym);
             LOG_STATS("solve_ch[E_IN]", 0, 0, 0);
             flag = true;
-            in->obj_lst[idx].m_dot = ch->obj_lst[idx].in.m_dot;
-            vec_pos(ch->obj_lst[idx].in.F_bar,
+            in->obj_lst[idx].m_dot = ch->obj_lst[idx].u.in.m_dot;
+            vec_pos(ch->obj_lst[idx].u.in.F_bar,
                     in->obj_lst[idx].F_bar);
-            vec_pos(ch->obj_lst[idx].in.M_bar,
+            vec_pos(ch->obj_lst[idx].u.in.M_bar,
                     in->obj_lst[idx].M_bar);
             break;
         case E_EM:
+            LOG_WARNING("[E_EM] `%s`", cfg->obj_lst[idx].sym);
             LOG_STATS("solve_ch[E_EM]", 0, 0, 0);
             flag = true;
-            em->obj_lst[idx].q = ch->obj_lst[idx].em.q;
-            vec_pos(ch->obj_lst[idx].em.p_bar,
+            em->obj_lst[idx].q = ch->obj_lst[idx].u.em.q;
+            vec_pos(ch->obj_lst[idx].u.em.p_bar,
                     em->obj_lst[idx].p_bar);
-            vec_pos(ch->obj_lst[idx].em.m_bar,
+            vec_pos(ch->obj_lst[idx].u.em.m_bar,
                     em->obj_lst[idx].m_bar);
             break;
         default:
@@ -215,8 +219,8 @@ void solve_in(
     mat_mulv(out->sys.I_cm, st->sys.om_bar, foo);
     vec_cross(st->sys.om_bar, foo, bar);
     vec_sub(in->sys.om_dot, bar, foo);
-    mat_inv(out->sys.I_cm, eye);
-    mat_mulv(eye, foo, in->sys.om_dot);
+    mat_inv((void*)out->sys.I_cm, eye);
+    mat_mulv((void*)eye, foo, in->sys.om_dot);
     // v_bar
     vec_rot(st->sys.q, temp, in->sys.F_bar);
     vec_cross(st->sys.om_bar, out->sys.c_bar, foo);
@@ -246,20 +250,20 @@ void solve_out(
         vec_muls(cfg->obj_lst[idx].r_bar, st->obj_lst[idx].m, foo);
         vec_add(out->sys.c_bar, foo, out->sys.c_bar);
         quat_rot_mat(cfg->obj_lst[idx].q, temp);
-        dmat_muld(temp, st->obj_lst[idx].I_cm, bar);
-        mat__T(temp, temp);
-        mat_mul(bar, temp, eye);
-        mat_add(out->sys.I_cm, eye, out->sys.I_cm);
+        dmat_muld((void*)temp, st->obj_lst[idx].I_cm, bar);
+        mat__T((void*)temp, temp);
+        mat_mul((void*)bar, (void*)temp, eye);
+        mat_add((void*)out->sys.I_cm, (void*)eye, out->sys.I_cm);
         vec_cross_mat(cfg->obj_lst[idx].r_bar, temp);
-        mat_mul(temp, temp, eye);
-        mat_muls(eye, st->obj_lst[idx].m, eye);
-        mat_sub(out->sys.I_cm, eye, out->sys.I_cm);
+        mat_mul((void*)temp, (void*)temp, eye);
+        mat_muls((void*)eye, st->obj_lst[idx].m, eye);
+        mat_sub((void*)out->sys.I_cm, (void*)eye, out->sys.I_cm);
     }
     vec_muls(out->sys.c_bar, 1.0 / out->sys.m, out->sys.c_bar);
     vec_cross_mat(out->sys.c_bar, temp);
-    mat_mul(temp, temp, eye);
-    mat_muls(eye, out->sys.m, eye);
-    mat_add(out->sys.I_cm, eye, out->sys.I_cm);
+    mat_mul((void*)temp, (void*)temp, eye);
+    mat_muls((void*)eye, out->sys.m, eye);
+    mat_add((void*)out->sys.I_cm, (void*)eye, out->sys.I_cm);
 }
 
 void solve_em(

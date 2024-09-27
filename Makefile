@@ -1,7 +1,7 @@
 export PATH := bin:$(PATH)
 SHELL = /bin/sh
 CC=gcc
-CFLAGS=-std=c99 -g -Os -Wall -Wextra -Werror -fwrapv
+CFLAGS=-std=c99 -pedantic -Os -Wall -Wextra -Werror -fwrapv
 CLIBS=-lm -lrt -pthread
 
 PROJ=.
@@ -11,7 +11,7 @@ LIB=$(PROJ)/epicycle
 BUILD=$(PROJ)/build
 MAIN=$(PROJ)/main.c
 
-MACROS=__DEBUG__ __MEDIUM__ GMAT_NDIM=13 ODE_EULER
+MACROS=__MEDIUM__ POLY_DEG=5 GMAT_NDIM=13
 CPPFLAGS=-I$(INCLUDE) $(MACROS:%=-D%)
 LDFLAGS=-L$(LIB) -Wl,--enable-new-dtags,-R$(LIB)
 

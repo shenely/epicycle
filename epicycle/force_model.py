@@ -105,11 +105,12 @@ def solve_st_delta(size: int, cfg: cfg_t, prev: st_t, next: st_t, out: out_t):
 #   struct st_s*, struct st_s*, struct in_s*, struct em_s*)
 libcore.solve_ch.argtypes = [
     ctypes.c_size_t,
-    p_ch_t, p_st_t, p_st_t, p_in_t, p_em_t
+    p_cfg_t, p_ch_t, p_st_t, p_st_t, p_in_t, p_em_t
 ]
 libcore.solve_ch.restype = ctypes.c_bool
 def solve_ch(
     size: int,
+    cfg: cfg_t,
     ch: ch_t,
     prev: st_t,
     next: st_t,
@@ -118,6 +119,7 @@ def solve_ch(
 ) -> bool:
     return libcore.solve_ch(
         size,
+        ctypes.byref(cfg),
         ctypes.byref(ch),
         ctypes.byref(prev) if prev else None,
         ctypes.byref(next) if next else None,

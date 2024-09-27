@@ -61,10 +61,10 @@ void mat__T(const mat_t A, mat_t A__T)
     double temp;
     for (size_t i = 0; i < 3; i++) {
         A__T[i][i] = A[i][i];
-        for (size_t j = i + 1; j < 3; j++) {
-            temp = A[i][j];
-            A__T[i][j] = A[j][i];
-            A__T[j][i] = temp;
+        for (size_t j = 1; i + j < 3; j++) {
+            temp = A[i][i+j];
+            A__T[i][i+j] = A[i+j][i];
+            A__T[i+j][i] = temp;
         }
     }
 }

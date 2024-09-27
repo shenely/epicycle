@@ -11,8 +11,12 @@
 /* Internal libraries */
 #include "util.h"
 
+#if !defined POLY_DEG
+#error "Polynomial degree undefined"
+#endif
+
 /* Data types */
-struct poly_s {size_t deg; double coeff[];};
+struct poly_s {size_t deg; double coeff[POLY_DEG+1];};
 
 /* Zero polynomial
  * :param poly_t* P: output polynomial

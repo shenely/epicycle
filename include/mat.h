@@ -10,6 +10,7 @@
 
 /* Data types */
 typedef double mat_t[3][3]; // 3x3 matrix
+typedef const double *const *const cmat_t; // 3x3 matrix
 
 /* Zero matrix
  * :param mat_t A: output matrix
