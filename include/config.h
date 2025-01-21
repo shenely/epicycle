@@ -1,4 +1,5 @@
 #ifndef __CONFIG_H__
+
 /* Configuration items
  * --------------------
  */

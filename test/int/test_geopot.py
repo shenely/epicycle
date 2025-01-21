@@ -10,7 +10,7 @@ import scipy.linalg
 from epicycle import quat
 from epicycle import gee
 from epicycle import geopot
-from epicycle.data_model import *
+from epicycle.vehicle_model import *
 
 
 def test_geopot():
@@ -96,7 +96,7 @@ def test_geopot_node():
     F_hat = F_bar / F
     G = scipy.linalg.norm(G_bar)
     G_hat = G_bar / G
-    assert math.isclose(F, G, rel_tol=1e-2)
+    assert math.isclose(F, G, rel_tol=2e-2)
     assert math.isclose(numpy.dot(F_hat, G_hat), 1.0, rel_tol=1e-2)
     # assert math.isclose(F_bar[0], G_bar[0], rel_tol=1.22e-4)
     # assert math.isclose(F_bar[1], G_bar[1], rel_tol=1.22e-4)

@@ -6,7 +6,7 @@ import ctypes
 
 # internal libraries
 from . import libgee
-from .data_model import (
+from .vehicle_model import (
     cfg_t, p_cfg_t,
     st_t, p_st_t,
     in_t, p_in_t,

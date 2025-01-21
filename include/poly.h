@@ -1,15 +1,16 @@
 #ifndef __POLY_H__
 #define __POLY_H__
+
 /* Polynonial library
  * ------------------
  */
 
+/* Internal libraries */
+#include "util.h"
+
 /* External libraries */
 #include <stddef.h>
 #include <string.h>
-
-/* Internal libraries */
-#include "util.h"
 
 #if !defined POLY_DEG
 #error "Polynomial degree undefined"

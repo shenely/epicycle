@@ -10,193 +10,158 @@
 
 ode_meth_t ode_default_meth = ODE_METHOD_NAME(midp);
 
-static void __interp_gvec(
-    double x0, const gvec_t y0,
-    double x1, const gvec_t y1,
-    double x, gvec_t y
-) {
-    LOG_STATS("__interp_gvec", 0, 0, 0);
-    interp_vlerp(
-        x0, &y0[0],
-        x1, &y1[0],
-        x, &y[0]
-    );
-    interp_slerp(
-        x0, &y0[3],
-        x1, &y1[3],
-        x, &y[3]
-    );
-    interp_vlerp(
-        x0, &y0[7],
-        x1, &y1[7],
-        x, &y[7]
-    );
-    interp_vlerp(
-        x0, &y0[10],
-        x1, &y1[10],
-        x, &y[10]
-    );
-}
-
-static void __int_gvec(
-    double delta_x,
-    const gvec_t k,
-    const gvec_t y0,
-    gvec_t y1
-) {
-    LOG_STATS("__int_gvec", 0, 0, 0);
-    vec_t foo;
-    quat_t bar;
-    gvec_t delta_y;
-    gvec_muls(k, delta_x, delta_y);
-    // r1_bar = r0_bar + delta_x * v_bar
-    vec_add(&y0[0], &delta_y[0], &y1[0]);
-    // q1 = q0 * exp(delta_x * om_bar / 2)
-    vec_muls(&delta_y[4], 0.5, foo);
-    vec_exp(foo, &delta_y[3]);
-    quat_mul(&y0[3], &delta_y[3], bar);
-    quat_pos(bar, &y1[3]);
-    // v1_bar = v0_bar + delta_x * v_dot
-    vec_add(&y0[7], &delta_y[7], &y1[7]);
-    // om1_bar = om0_bar + delta_x * om_dot
-    vec_add(&y0[10], &delta_y[10], &y1[10]);
-}
-
 static void __apply_stage(
-    size_t N, const double* A,
+    size_t N, const double A[static N],
     double delta_x,
-    const gvec_t y0,
-    gvec_t y1,
-    const gvec_t k[]
+    const st_t* y0,
+    st_t* restrict y1,
+    const st_t k[static N]
 ) {
     LOG_STATS("__apply_stage", 0, N, 0);
-    __int_gvec(A[0] * delta_x, k[0], y0, y1);
+    st_int(A[0] * delta_x, &k[0], y0, y1);
     for (size_t i = 1; i < N; i++) {
         if (fabs(A[i]) < ABSTOL)
             continue;
-        gvec_t temp;
-        __int_gvec(A[i] * delta_x, k[i], y1, temp);
-        gvec_pos(temp, y1);
+        st_t temp;
+        st_int(A[i] * delta_x, &k[i], y1, &temp);
+        st_pos(&temp, y1);
     }
+}
+
+static bool __check_error(
+    const st_t* delta_k,
+    const st_t* k
+) {
+    LOG_STATS("__check_error", 0, 0, 0);
+    vec_t foo, bar;
+    bool done = true;
+    done &= vec_norm(delta_k->r_bar) < ABSTOL + RELTOL * vec_norm(k->r_bar);
+    quat_log(delta_k->q, foo);
+    quat_log(k->q, bar);
+    done &= vec_norm(foo) < ABSTOL + RELTOL * vec_norm(bar);
+    done &= vec_norm(delta_k->v_bar) < ABSTOL + RELTOL * vec_norm(k->v_bar);
+    done &= vec_norm(delta_k->om_bar) < ABSTOL + RELTOL * vec_norm(k->om_bar);
+    return done;
 }
 
 #ifdef ODE_EULER
 FUNCTION_ODE_METHOD(euler) {
     LOG_STATS("ode_euler", 1, 0, 0);
     double delta_x = x1 - x0;
-    gvec_t k;
+    st_t k;
     // k = f(x0, y0)
-    fun(x0, y0, k, nargs, vargs);
+    fun(x0, y0, &k, nargs, vargs);
     // y1 = y0 + h * k
-    __int_gvec(delta_x, k, y0, y1);
+    st_int(delta_x, &k, y0, y1);
     return true;
 }
 #endif
 
-FUNCTION_ODE_METHOD(verlet)
-{
+FUNCTION_ODE_METHOD(verlet) {
     LOG_STATS("ode_verlet", 1, 2, 0);
     double delta_x = x1 - x0;
-    gvec_t k;
+    st_t k;
     // k = f(x0, y0)
-    fun(x0, y0, k, nargs, vargs);
+    fun(x0, y0, &k, nargs, vargs);
     // y1 = y0 + h * k
     vec_t foo;
+    quat_t bar, temp;
     // k[r] += delta_x * k[v] / 2
-    vec_muls(&k[7], 0.5 * delta_x, foo);
-    vec_add(&k[0], foo, &k[0]);
+    vec_muls(k.v_bar, 0.5 * delta_x, foo);
+    vec_add(k.r_bar, foo, k.r_bar);
     // k[th] += delta_x * k[om] / 2
-    vec_muls(&k[10], 0.5 * delta_x, foo);
-    vec_add(&k[4], foo, &k[4]);
-    __int_gvec(delta_x, k, y0, y1);
+    vec_muls(k.om_bar, 0.25 * delta_x, foo);
+    vec_exp(foo, bar);
+    quat_pos(k.q, temp);
+    quat_mul(temp, bar, k.q);
+    st_int(delta_x, &k, y0, y1);
     return true;
 }
 
-FUNCTION_ODE_METHOD(rk4)
-{
+FUNCTION_ODE_METHOD(rk4) {
     LOG_STATS("ode_rk4", 4, 3, 0);
-    static const double A[3][3] = {
-        {0.5          },
-        {0,0, 0.5     },
-        {0.0, 0.0, 1.0},
-    };
-    static const double b_bar[4] = {0.16666666666666666, 0.33333333333333333, 0.33333333333333333, 0.16666666666666666};
-    static const double c_bar[3] = {0.5, 0.5, 1.0};
+    static const
+    double A[3][3] = {
+            {0.5          },
+            {0,0, 0.5     },
+            {0.0, 0.0, 1.0},
+        },
+        b_bar[4] = {0.16666666666666666, 0.33333333333333333, 0.33333333333333333, 0.16666666666666666},
+        c_bar[3] = {0.5, 0.5, 1.0};
     
     double delta_x = x1 - x0;
-    gvec_t k[4], y;
+    st_t k[4], y;
     
     // k[0] = f(x0, y0)
     va_list cargs;
     va_copy(cargs, *vargs);
-    fun(x0, y0, k[0], nargs, &cargs);
+    fun(x0, y0, &k[0], nargs, &cargs);
     va_end(cargs);
     
     // k[1] = f(x0 + h / 2, y0 + h * k[0] / 2)
     // k[2] = f(x0 + h / 2, y0 + h * k[1] / 2)
     // k[3] = f(x0 + h, y0 + h * k[2])
      for (size_t i = 0; i < 3; i++) {
-        __apply_stage(i+1, A[i], delta_x, y0, y, (void*)k);
+        __apply_stage(i+1, A[i], delta_x, y0, &y, k);
         va_copy(cargs, *vargs);
-        fun(x0 + c_bar[i] * delta_x, y, k[i+1], nargs, &cargs);
+        fun(x0 + c_bar[i] * delta_x, &y, &k[i+1], nargs, &cargs);
         va_end(cargs);
     }
     
     // y1 = y0 + h * (k[0] / 6 + k[1] / 3 + k[2] / 3 + k[3] / 6)
-     __apply_stage(4, b_bar, delta_x, y0, y1, (void*)k);
+     __apply_stage(4, b_bar, delta_x, y0, y1, k);
     return true;
 }
 
 #ifdef ODE_EULER
-FUNCTION_ODE_METHOD(heuler)
-{
+FUNCTION_ODE_METHOD(heuler) {
     LOG_STATS("ode_heuler", 1, 2, 0);
     assert(step != NULL);
     double delta_x = x1 - x0;
-    gvec_t k, y2, temp;
+    st_t k, y2, temp;
     
     // k[0] = f(x0, y0)
     va_list cargs;
     va_copy(cargs, *vargs);
     fun(x0, y0, k, nargs, &cargs);
     va_end(cargs);
-    __int_gvec(0.5 * delta_x, k, y0, temp);
+    st_int(0.5 * delta_x, &k, y0, &temp);
     
     // k[1] = f(x0 + h, y0 + h * k[0])
     va_copy(cargs, *vargs);
-    __int_gvec(delta_x, k, y0, y1);
-    fun(x1, y1, k, nargs, &cargs);
+    st_int(delta_x, &k, y0, y1);
+    fun(x1, y1, &k, nargs, &cargs);
     va_end(cargs);
-    __int_gvec(0.5 * delta_x, k, temp, y2);
+    st_int(0.5 * delta_x, &k, &temp, &y2);
     
     // y2 = y0 + h * (k[0] + k[1]) / 2
     // y1 = y0 + h * k[0]
-    return step(y0, y1, y2, abstol, reltol, 1, nargs, vargs);
+    return step(y0, y1, &y2, 1, nargs, vargs);
 }
 #endif
 
-FUNCTION_ODE_METHOD(dopri)
-{
+FUNCTION_ODE_METHOD(dopri) {
     LOG_STATS("ode_dopri", 7, 6, 0);
-    static const double A[6][6] = {
-        {+0.2                },
-        {+0.075              , +0.225             },
-        {+0.9777777777777777 , -3.7333333333333334, +3.5555555555555554 },
-        {+2.9525986892242035 , -11.595793324188385, +9.822892851699436  , -0.2908093278463649},
-        {+2.8462752525252526 , -10.757575757575758, +8.906422717743473  , +0.2784090909090909, -0.2735313036020583},
-        {+0.09114583333333333,  0.0               , +0.44923629829290207, +0.6510416666666666, -0.322376179245283 , +0.13095238095238096}
-    };
-    static const double b2_bar[7] = {+0.08991319444444444,  0.0, +0.4534890685834082, +0.6140625         , -0.2715123820754717, +0.08904761904761904, +0.025};
-    static const double c_bar[6]  = {+0.2                , +0.3, +0.8               , +0.8888888888888888, +1.0               , +1.0                };
+    static const
+    double A[6][6] = {
+            {+0.2                },
+            {+0.075              , +0.225             },
+            {+0.9777777777777777 , -3.7333333333333334, +3.5555555555555554 },
+            {+2.9525986892242035 , -11.595793324188385, +9.822892851699436  , -0.2908093278463649},
+            {+2.8462752525252526 , -10.757575757575758, +8.906422717743473  , +0.2784090909090909, -0.2735313036020583},
+            {+0.09114583333333333,  0.0               , +0.44923629829290207, +0.6510416666666666, -0.322376179245283 , +0.13095238095238096}
+        },
+        b2_bar[7] = {+0.08991319444444444,  0.0, +0.4534890685834082, +0.6140625         , -0.2715123820754717, +0.08904761904761904, +0.025},
+        c_bar[6]  = {+0.2                , +0.3, +0.8               , +0.8888888888888888, +1.0               , +1.0                };
     
     assert(step != NULL);
     double delta_x = x1 - x0;
-    gvec_t k[7], y2;
+    st_t k[7], y2;
     
     // k[0] = f(x0, y0)
     va_list cargs;
     va_copy(cargs, *vargs);
-    fun(x0, y0, k[0], nargs, &cargs);
+    fun(x0, y0, &k[0], nargs, &cargs);
     va_end(cargs);
     
     /* k[1] = f(x0 + h / 5, y0 + h * k[0] / 5)
@@ -226,9 +191,9 @@ FUNCTION_ODE_METHOD(dopri)
      *                    +   11 * k[5] / 84))
      */
      for (size_t i = 0; i < 6; i++) {
-        __apply_stage(i+1, A[i], delta_x, y0, y1, (void*)k);
+        __apply_stage(i+1, A[i], delta_x, y0, y1, k);
         va_copy(cargs, *vargs);
-        fun(x0 + c_bar[i] * delta_x, y1, k[i+1], nargs, &cargs);
+        fun(x0 + c_bar[i] * delta_x, y1, &k[i+1], nargs, &cargs);
         va_end(cargs);
     }
     
@@ -245,32 +210,29 @@ FUNCTION_ODE_METHOD(dopri)
      *                +   187 * k[5] / 2100
      *                +         k[6] / 40))
      */
-     __apply_stage(7, b2_bar, delta_x, y0, y2, (void*)k);
-    return step(y0, y1, y2, abstol, reltol, 4, nargs, vargs);
+     __apply_stage(7, b2_bar, delta_x, y0, &y2, k);
+    return step(y0, y1, &y2, 4, nargs, vargs);
 }
 
 #ifdef ODE_EULER
-FUNCTION_ODE_METHOD(beuler)
-{
+FUNCTION_ODE_METHOD(beuler) {
     LOG_STATS("ode_beuler", 1, 0, 0);
     double delta_x = x1 - x0;
-    gvec_t k, delta_k;
-    gvec_zero(k);
-    gvec_zero(delta_k);
+    st_t k, delta_k;
+    st_zero(&k);
+    st_zero(&delta_k);
     
     va_list cargs;
     bool done = false;
     for (size_t n = 0; n < MAXITER; n++) {
         LOG_STATS("ode_beuler", 13, 13, 0);
         va_copy(cargs, *vargs);
-        fun(x1, y1, delta_k, nargs, &cargs);
+        fun(x1, y1, &delta_k, nargs, &cargs);
         va_end(cargs);
-        gvec_sub(delta_k, k, delta_k);
-        gvec_add(k, delta_k, k);
-        done = true;
-        for (size_t i = 0; i < GMAT_NDIM; i++)
-            done &= fabs(delta_k[i]) < abstol[i] + reltol[i] * fabs(k[i]);
-        __int_gvec(delta_x, k, y0, y1);
+        st_sub(&delta_k, &k, &delta_k);
+        st_add(&k, &delta_k, &k);
+        done = __check_error(&delta_k, &k);
+        st_int(delta_x, &k, y0, y1);
         if (n < 2) continue;
         else if (done) break;
     }
@@ -279,13 +241,12 @@ FUNCTION_ODE_METHOD(beuler)
 }
 #endif
 
-FUNCTION_ODE_METHOD(midp)
-{
+FUNCTION_ODE_METHOD(midp) {
     LOG_STATS("ode_midp", 1, 0, 0);
     double delta_x = x1 - x0, x;
-    gvec_t k, delta_k, y;
-    gvec_zero(k);
-    gvec_zero(delta_k);
+    st_t k, delta_k, y;
+    st_zero(&k);
+    st_zero(&delta_k);
     
     va_list cargs;
     bool done = false;
@@ -293,15 +254,13 @@ FUNCTION_ODE_METHOD(midp)
         LOG_STATS("ode_midp", 14, 14, 0);
         va_copy(cargs, *vargs);
         x = 0.5 * (x1 + x0);
-        __interp_gvec(x0, y0, x1, y1, x, y);
-        fun(x, y, delta_k, nargs, &cargs);
+        st_interp(x0, y0, x1, y1, x, &y);
+        fun(x, &y, &delta_k, nargs, &cargs);
         va_end(cargs);
-        gvec_sub(delta_k, k, delta_k);
-        gvec_add(k, delta_k, k);
-        done = true;
-        for (size_t i = 0; i < GMAT_NDIM; i++)
-            done &= fabs(delta_k[i]) < abstol[i] + reltol[i] * fabs(k[i]);
-        __int_gvec(delta_x, k, y0, y1);
+        st_sub(&delta_k, &k, &delta_k);
+        st_add(&k, &delta_k, &k);
+        done = __check_error(&delta_k, &k);
+        st_int(delta_x, &k, y0, y1);
         if (n < 2) continue;
         else if (done) break;
     }
@@ -309,22 +268,22 @@ FUNCTION_ODE_METHOD(midp)
     return true;
 }
 
-FUNCTION_ODE_METHOD(vgl4)
-{
+FUNCTION_ODE_METHOD(vgl4) {
     LOG_STATS("ode_vgl4", 1, 0, 0);
-    static const double A[2][2] = {
-        {+0.25              , -0.03867513459481292},
-        {+0.5386751345948129, +0.25               }
-    };
-    static const double b1_bar[2] = {+0.5                , +0.5               };
-    static const double b2_bar[2] = {+1.3660254037844386 , -0.3660254037844386};
-    static const double c_bar[2]  = {+0.21132486540518708, +0.7886751345948129};
+    static const
+    double A[2][2] = {
+            {+0.25              , -0.03867513459481292},
+            {+0.5386751345948129, +0.25               }
+        },
+        b1_bar[2] = {+0.5                , +0.5               },
+        b2_bar[2] = {+1.3660254037844386 , -0.3660254037844386},
+        c_bar[2]  = {+0.21132486540518708, +0.7886751345948129};
     
     double delta_x = x1 - x0;
-    gvec_t k[2], delta_k, y2;
+    st_t k[2], delta_k, y2;
     for (size_t i = 0; i < 2; i++)
-        gvec_zero(k[i]);
-    gvec_zero(delta_k);
+        st_zero(&k[i]);
+    st_zero(&delta_k);
     
     va_list cargs;
     bool done = false;
@@ -332,82 +291,80 @@ FUNCTION_ODE_METHOD(vgl4)
         LOG_STATS("ode_vgl4", 27, 27, 0);
         done = true;
         for (size_t i = 0; i < 2; i++) {
-            __apply_stage(2, A[i], delta_x, y0, y2, (void*)k);
+            __apply_stage(2, A[i], delta_x, y0, &y2, k);
             va_copy(cargs, *vargs);
-            fun(x0 + c_bar[i] * delta_x, y2, delta_k, nargs, &cargs);
+            fun(x0 + c_bar[i] * delta_x, &y2, &delta_k, nargs, &cargs);
             va_end(cargs);
-            gvec_sub(delta_k, k[i], delta_k);
-            gvec_add(k[i], delta_k, k[i]);
-            for (size_t j = 0; j < GMAT_NDIM; j++)
-                done &= fabs(delta_k[j]) < abstol[j] + reltol[j] * fabs(k[i][j]);
+            st_sub(&delta_k, &k[i], &delta_k);
+            st_add(&k[i], &delta_k, &k[i]);
+            done &= __check_error(&delta_k, &k[i]);
         }
         if (n < 2) continue;
         else if (done) break;
     }
     assert(done);
-    __apply_stage(2, b1_bar, delta_x, y0, y1, (void*)k);
+    __apply_stage(2, b1_bar, delta_x, y0, y1, k);
     if (step == NULL)
         return true;
-    __apply_stage(2, b2_bar, delta_x, y0, y2, (void*)k);
-    return step(y0, y1, y2, abstol, reltol, 4, nargs, vargs);
+    __apply_stage(2, b2_bar, delta_x, y0, &y2, k);
+    return step(y0, y1, &y2, 4, nargs, vargs);
 }
 
-FUNCTION_ODE_METHOD(vgl6)
-{
+FUNCTION_ODE_METHOD(vgl6) {
     LOG_STATS("ode_vgl6", 1, 0, 0);
-    static const double A[3][3] = {
-        {+0.1388888888888889 , -0.03597666752493889, +0.009789444015308346},
-        {+0.3002631949808646 , +0.2222222222222222 , -0.022485417203086805},
-        {+0.26798833376246944, +0.4804211119693833 , +0.1388888888888889  }
-    };
-    static const double b1_bar[3] = {+0.2777777777777778, +0.4444444444444444, +0.2777777777777778};
-    static const double b2_bar[3] = {-0.8333333333333334, +2.6666666666666665, -0.8333333333333334};
-    static const double c_bar[3]  = {+0.1127016653792583, +0.5               , +0.8872983346207417};
+    static const
+    double A[3][3] = {
+            {+0.1388888888888889 , -0.03597666752493889, +0.009789444015308346},
+            {+0.3002631949808646 , +0.2222222222222222 , -0.022485417203086805},
+            {+0.26798833376246944, +0.4804211119693833 , +0.1388888888888889  }
+        },
+        b1_bar[3] = {+0.2777777777777778, +0.4444444444444444, +0.2777777777777778},
+        b2_bar[3] = {-0.8333333333333334, +2.6666666666666665, -0.8333333333333334},
+        c_bar[3]  = {+0.1127016653792583, +0.5               , +0.8872983346207417};
     
     double delta_x = x1 - x0;
-    gvec_t k[3], delta_k, y2;
+    st_t k[3], delta_k, y2;
     for (size_t i = 0; i < 3; i++)
-        gvec_zero(k[i]);
-    gvec_zero(delta_k);
+        st_zero(&k[i]);
+    st_zero(&delta_k);
     
     va_list cargs;
     bool done = false;
     for (size_t n = 0; n < MAXITER; n++) {
         LOG_STATS("ode_vgl6", 40, 40, 0);
         done = true;
-        for (size_t i = 0; i < 3; i++) {
-            __apply_stage(3, A[i], delta_x, y0, y2, (void*)k);
+        for (size_t i = 0; i < 3; ++i) {
+            __apply_stage(3, A[i], delta_x, y0, &y2, k);
             va_copy(cargs, *vargs);
-            fun(x0 + c_bar[i] * delta_x, y2, delta_k, nargs, &cargs);
+            fun(x0 + c_bar[i] * delta_x, &y2, &delta_k, nargs, &cargs);
             va_end(cargs);
-            gvec_sub(delta_k, k[i], delta_k);
-            gvec_add(k[i], delta_k, k[i]);
-            for (size_t j = 0; j < GMAT_NDIM; j++)
-                done &= fabs(delta_k[j]) < abstol[j] + reltol[j] * fabs(k[i][j]);
+            st_sub(&delta_k, &k[i], &delta_k);
+            st_add(&k[i], &delta_k, &k[i]);
+            done &= __check_error(&delta_k, &k[i]);
         }
         if (n < 2) continue;
         else if (done) break;
     }
     assert(done);
-    __apply_stage(3, b1_bar, delta_x, y0, y1, (void*)k);
+    __apply_stage(3, b1_bar, delta_x, y0, y1, k);
     if (step == NULL)
         return true;
-    __apply_stage(3, b2_bar, delta_x, y0, y2, (void*)k);
-    return step(y0, y1, y2, abstol, reltol, 6, nargs, vargs);
+    __apply_stage(3, b2_bar, delta_x, y0, &y2, k);
+    return step(y0, y1, &y2, 6, nargs, vargs);
 }
 
-bool solve_ivp(
-    double x0, const gvec_t y0,
-    double x1, gvec_t y1,
+bool
+solve_ivp(
+    double x0, const st_t* y0,
+    double x1, st_t* restrict y1,
     ode_meth_t meth, ode_fun_t fun, ode_step_t step,
-    const gvec_t abstol, const gvec_t reltol,
     size_t nargs, ...
 ) {
     LOG_STATS("solve_ivp", 0, 0, 0);
     if (meth == NULL) meth = ode_default_meth;
     va_list vargs;
     va_start(vargs, nargs);
-    bool done = meth(x0, y0, x1, y1, fun, step, abstol, reltol, nargs, &vargs);
+    bool done = meth(x0, y0, x1, y1, fun, step, nargs, &vargs);
     va_end(vargs);
     return done;
 }

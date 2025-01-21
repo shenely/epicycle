@@ -10,7 +10,7 @@ from epicycle import vec
 from epicycle import quat
 from epicycle import gee
 from epicycle import stdatm
-from epicycle.data_model import *
+from epicycle.vehicle_model import *
 
 
 def test_stdatm():

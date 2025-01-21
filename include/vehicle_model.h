@@ -1,21 +1,22 @@
-#ifndef __DATA_MODEL_H__
-#define __DATA_MODEL_H__
-/* Data model library
+#ifndef __VEHICLE_MODEL_H__
+#define __VEHICLE_MODEL_H__
+
+/* Vehicle model library
  * ------------------
  */
 
-/* External libraries */
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-
 /* Internal libraries */
-#include "util.h"
-#include "vec.h"
+#include "dmat.h"
 #include "mat.h"
 #include "quat.h"
-#include "dmat.h"
-#include "gmat.h"
+#include "st.h"
+#include "util.h"
+#include "vec.h"
+
+/* Built-in libraries */
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #if defined __XSMALL__
 #define MAX_OBJ_COUNT 1
@@ -32,7 +33,7 @@
 #endif
 
 /* Data types */
-struct data_model_s {
+struct vehicle_model_s {
     size_t size;
     struct cfg_s {
         struct {
@@ -53,12 +54,7 @@ struct data_model_s {
             uint64_t n;
             double t;
         } clk;
-        struct {
-            vec_t r_bar;  // position vector
-            quat_t q;  // attitude quaternion
-            vec_t v_bar;  // velocity vector
-            vec_t om_bar;  // angular velocity
-        } sys;
+        st_t sys;
         struct {
             double m;  // mass
             dmat_t I_cm;  // moment of inertia
@@ -128,15 +124,5 @@ struct data_model_s {
     } em;
 };
 
-union tol_u {
-    struct {
-        vec_t r_bar;
-        quat_t q;
-        vec_t v_bar;
-        vec_t om_bar;
-    } st;
-    gvec_t v_bar;
-};
-
-#endif  // __DATA_MODEL_H__
+#endif  // __VEHICLE_MODEL_H__
 

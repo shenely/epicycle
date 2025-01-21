@@ -9,9 +9,9 @@
 #include <stdarg.h>
 
 /* Internal libraries */
-#include "data_model.h"
+#include "vehicle_model.h"
 #include "ode.h"
-#include "gmat.h"
+#include "st.h"
 #include "config.h"
 
 /* Data types */
@@ -19,8 +19,6 @@ struct force_model_s {
     size_t size;
     ode_fun_t accum_fun;
     ode_step_t step_fun;
-    union tol_u abstol;
-    union tol_u reltol;
     bool (*fun_lst[16])(
         size_t,
         const struct cfg_s*,
@@ -165,27 +163,26 @@ bool em(
 
 /* Apply force model
  * :param double x:
- * :param gvec_t y: input position vector
- * :param gvec_t f: output force vector
+ * :param st_t* y: input position state
+ * :param st_t* f: output force state
  * :param size_t nargs: number of arguments
  * :param va_list* vargs: variadic arguments
  */
 void apply_force_model(
-    double, const gvec_t, gvec_t,
+    double, const st_t*, st_t* restrict,
     size_t, va_list*
 );
 
 /* Adjust time step
- * :param gvec_t y0: (first) input vector
- * :param gvec_t y1: (second) input vector
- * :param gvec_t y2: (third) input vector
+ * :param st_t* y0: (first) input state
+ * :param st_t* y1: (second) input state
+ * :param st_t* y2: (third) input state
  * :param int q: integration order
  * :param size_t nargs: number of arguments
  * :param va_list* vargs: variadic arguments
  */
 bool adjust_time_step(
-    const gvec_t, const gvec_t, const gvec_t,
-    const gvec_t, const gvec_t,
+    const st_t*, const st_t*, const st_t*,
     int, size_t, va_list*
 );
 

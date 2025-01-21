@@ -1,21 +1,27 @@
 #ifndef __MAT_H__
 #define __MAT_H__
+
 /* Matrix library
  * --------------
  */
-#include <stdbool.h>
+ 
+/* Internal libraries */
 #include "vec.h"
 
-#define vec_imul(u_bar, v_bar) vec_dot(u_bar, v_bar)
+/* Built-in libraries */
+#include <stdbool.h>
 
 /* Data types */
 typedef double mat_t[3][3]; // 3x3 matrix
-typedef const double *const *const cmat_t; // 3x3 matrix
 
 /* Zero matrix
  * :param mat_t A: output matrix
  */
-static inline void mat_zero(mat_t A) {
+static inline
+void
+mat_zero(
+    mat_t A
+) {
     memset(A, 0, sizeof(mat_t));
 }
 
@@ -28,7 +34,12 @@ void mat_eye(mat_t);
  * :param mat_t A: input matrix
  * :param mat_t B: output matrix
  */
-static inline void mat_pos(const mat_t A, mat_t B) {
+static inline
+void
+mat_pos(
+    const mat_t A,
+    mat_t B
+) {
     memcpy(B, A, sizeof(mat_t));
 }
 
@@ -92,6 +103,7 @@ void mat_muls(const mat_t, double, mat_t);
 void mat_mul(const mat_t, const mat_t, mat_t);
 
 /* Matrix/vector functions */
+#define vec_imul(u_bar, v_bar) vec_dot(u_bar, v_bar)
 
 /* Vector outer product
  * :param vec_t u_bar: (first) input vector

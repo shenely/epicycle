@@ -15,7 +15,7 @@
 #include "interp.h"
 #include "ode.h"
 #include "shared_data.h"
-#include "data_model.h"
+#include "vehicle_model.h"
 #include "force_model.h"
 #include "gee.h"
 #include "geopot.h"
@@ -28,23 +28,7 @@ char* file_name;
 ode_meth_t ode_meth = NULL;
 struct force_model_s force_model = {
     .size=0,
-    .accum_fun=apply_force_model,
-    .abstol={
-        .st={
-            .r_bar={1.0e-3, 1.0e-3, 1.0e-3},
-            .q={M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2, M_ARCMIN / 2},
-            .v_bar={1.0e-3, 1.0e-3, 1.0e-3},
-            .om_bar={M_ARCMIN, M_ARCMIN, M_ARCMIN}
-        }
-    },
-    .reltol={
-        .st={
-            .r_bar={1.0e-9, 1.0e-9, 1.0e-9},
-            .q={M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2, M_ARCSEC / 2},
-            .v_bar={1.0e-6, 1.0e-6, 1.0e-6},
-            .om_bar={M_ARCSEC, M_ARCSEC, M_ARCSEC}
-        }
-    }
+    .accum_fun=apply_force_model
 };
 
 /* handle keyboard interrupt
@@ -124,6 +108,7 @@ int setup(int argc, char ** argv) {
                 ode_meth = ODE_METHOD_NAME(vgl4);
             else if (!strcmp(optarg, "vgl6"))
                 ode_meth = ODE_METHOD_NAME(vgl6);
+            LOG_WARNING("method: `%s`", optarg);
             break;
         case 'a':
             force_model.step_fun = adjust_time_step;
@@ -156,7 +141,7 @@ int main(int argc, char ** argv) {
     
     int flag = O_RDWR | O_CREAT | O_TRUNC,
         prot = PROT_READ | PROT_WRITE,
-        len  = sizeof(struct shared_data_s) + sizeof(struct data_model_s);
+        len  = sizeof(struct shared_data_s) + sizeof(struct vehicle_model_s);
     
     int fd = shm_open(file_name, flag, S_IRUSR | S_IWUSR);
     if (fd < 0)
@@ -172,17 +157,17 @@ int main(int argc, char ** argv) {
         (sem_init(&shared_data->sem2, 1, 1) < 0))
         goto sem_init_failed;
 
-    shared_data->size = sizeof(struct data_model_s);
-    struct data_model_s* data_model = (struct data_model_s*) &shared_data->data;
-    memset(data_model, 0, sizeof(struct data_model_s));
-    size_t* size = &data_model->size;
-    struct cfg_s* cfg = &data_model->cfg;
+    shared_data->size = sizeof(struct vehicle_model_s);
+    struct vehicle_model_s* vehicle_model = (struct vehicle_model_s*) &shared_data->data;
+    memset(vehicle_model, 0, sizeof(struct vehicle_model_s));
+    size_t* size = &vehicle_model->size;
+    struct cfg_s* cfg = &vehicle_model->cfg;
     struct st_s swap[3];
-    struct st_s *st = &data_model->st, *prev = &swap[0], *next = &swap[1], *curr = &swap[2];
-    struct ch_s* ch = &data_model->ch;
-    struct in_s* in = &data_model->in;
-    struct out_s* out = &data_model->out;
-    struct em_s* em = &data_model->em;
+    struct st_s *st = &vehicle_model->st, *prev = &swap[0], *next = &swap[1], *curr = &swap[2];
+    struct ch_s* ch = &vehicle_model->ch;
+    struct in_s* in = &vehicle_model->in;
+    struct out_s* out = &vehicle_model->out;
+    struct em_s* em = &vehicle_model->em;
     
     interp_init();
     stdatm_init();
@@ -204,13 +189,11 @@ int main(int argc, char ** argv) {
             do solve_st_dot(*size, cfg, prev, next, in);
             while (
                 !solve_ivp(
-                    prev->clk.t, (double*) &prev->sys,
-                    next->clk.t, (double*) &next->sys,
+                    prev->clk.t, &prev->sys,
+                    next->clk.t, &next->sys,
                     ode_meth,  // default `ode_meth_t`
                     force_model.accum_fun,
                     force_model.step_fun,
-                    force_model.abstol.v_bar,
-                    force_model.reltol.v_bar, 
                     9, *size, cfg, prev, next, curr, in, out, em, &force_model
                 )
             );
@@ -235,7 +218,7 @@ sem_wait_failed:
     sem_destroy(&shared_data->sem1);
     sem_destroy(&shared_data->sem2);
 sem_init_failed:
-    munmap(shared_data, sizeof(struct shared_data_s) + sizeof(struct data_model_s));
+    munmap(shared_data, sizeof(struct shared_data_s) + sizeof(struct vehicle_model_s));
 ftruncate_or_mmap_failed:
     shm_unlink(file_name);
 shm_open_failed:

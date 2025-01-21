@@ -7,7 +7,7 @@ import numpy.ctypeslib
 # internal libraries
 from epicycle import vec
 from epicycle import quat
-from epicycle.data_model import *
+from epicycle.vehicle_model import *
 from epicycle.force_model import *
 
 

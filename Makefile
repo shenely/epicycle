@@ -11,12 +11,12 @@ LIB=$(PROJ)/epicycle
 BUILD=$(PROJ)/build
 MAIN=$(PROJ)/main.c
 
-MACROS=__MEDIUM__ POLY_DEG=5 GMAT_NDIM=13
+MACROS=__DEBUG__ __MEDIUM__ POLY_DEG=5
 CPPFLAGS=-I$(INCLUDE) $(MACROS:%=-D%)
 LDFLAGS=-L$(LIB) -Wl,--enable-new-dtags,-R$(LIB)
 
 BASE=log.c
-MATH=vec.c quat.c mat.c dmat.c gmat.c poly.c interp.c ode.c
+MATH=vec.c quat.c mat.c dmat.c st.c poly.c interp.c ode.c 
 CORE=force_model.c
 GEE=gee.c geopot.c geomag.c stdatm.c
 ALL=base math core gee

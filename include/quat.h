@@ -1,14 +1,18 @@
 #ifndef __QUAT_H__
 #define __QUAT_H__
+
 /* Quaternion library
  * ------------------
  */
+/* Internal libraries */
+#include "mat.h"
+#include "util.h"
+#include "vec.h"
+
+/* Built-in libraries */
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
-#include "util.h"
-#include "vec.h"
-#include "mat.h"
 
 /* Data types */
 typedef double quat_t[4];
@@ -16,22 +20,31 @@ typedef double quat_t[4];
 /* Zero quaternion
  * :param quat_t q: output quaternion
  */
-static inline void quat_zero(quat_t q) {
+static inline
+void
+quat_zero(
+    quat_t q
+) {
     memset(q, 0, sizeof(quat_t));
 }
 
 /* Unitary quaternion
  * :param quat_t q: output quaternion
  */
-static inline void quat_pos(const quat_t p, quat_t q) {
-    memcpy(q, p, sizeof(quat_t));
-}
+void quat_one(quat_t);
 
 /* Quaternion positive
  * :param quat_t p: input quaternion
  * :param quat_t q: output quaternion
  */
-void quat_pos(const quat_t, quat_t);
+static inline
+void
+quat_pos(
+    const quat_t p,
+    quat_t q
+) {
+    memcpy(q, p, sizeof(quat_t));
+}
 
 /* Quaternion negative
  * :param quat_t p: input quaternion
@@ -70,7 +83,11 @@ bool quat_unit(const quat_t, quat_t);
  * :returns: is zero quaternion?
  * :rtype: bool
  */
-static inline bool quat_iszero(const quat_t q) {
+static inline
+bool
+quat_iszero(
+    const quat_t q
+) {
     return quat_norm(q) < M_ARCSEC;
 }
 
@@ -79,7 +96,11 @@ static inline bool quat_iszero(const quat_t q) {
  * :returns: is unit quaternion?
  * :rtype: bool
  */
-static inline bool quat_isunit(const quat_t q) {
+static inline
+bool
+quat_isunit(
+    const quat_t q
+) {
     return fabs(quat_norm(q) - 1.0) < M_ARCSEC;
 }
 

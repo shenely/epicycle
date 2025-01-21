@@ -1,9 +1,11 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
+
 /* Utiliity functions
  * ----------------
  */
 
+/* Built-in libraries */
 #include <stdint.h>
 
 #define MIN(A, B) ((A<B)?A:B)

@@ -1,10 +1,12 @@
 #ifndef __LOG_H__
 #define __LOG_H__
+
 /* Logging utilities
  * --------------------
  * Helper functions for logging messages
  */
 
+/* Built-in libraries */
 #include <time.h>
 
 /* Defined logging levels */
@@ -23,9 +25,7 @@ enum log_e {
 #define LOG_TRACE(...)    LOG(E_TRACE, "01;34", __VA_ARGS__)
 #define LOG_DEBUG(...)    LOG(E_DEBUG, "01;32", __VA_ARGS__)
 extern clock_t stats_tick, stats_tock;
-extern long stats_total_add,
-     stats_total_mul,
-     stats_total_pow;
+extern long stats_total_add, stats_total_mul, stats_total_pow;
 #define START_CLOCK() stats_tick = clock()
 #define STOP_CLOCK() stats_tock = clock()
 #define LOG_STATS(name, add, mul, pow) (\

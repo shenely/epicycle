@@ -6,15 +6,13 @@ import numpy
 
 # internal libraries
 from . import libcore
-from .gvec import gvec_t
-from .data_model import (
+from .vehicle_model import (
     cfg_t, p_cfg_t,
     st_t, p_st_t,
     ch_t, p_ch_t,
     in_t, p_in_t,
     out_t, p_out_t,
     em_t, p_em_t,
-    tol_t, p_tol_t,
 )
 
 # exports
@@ -31,8 +29,6 @@ class force_model_t(ctypes.Structure):
         ("size", ctypes.c_size_t),
         ("accum_fun", ctypes.c_void_p),
         ("step_fun", ctypes.c_void_p),
-        ("abstol", tol_t),
-        ("reltol", tol_t),
         ("fun_lst", ctypes.c_void_p * 16),
     ]
 

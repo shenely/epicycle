@@ -1,12 +1,17 @@
 #ifndef __VEC_H__
 #define __VEC_H__
+
 /* Vector library
  * --------------
  */
+ 
+/* Internal libraries */
+#include "config.h"
+
+/* Built-in libraries */
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
-#include "config.h"
 
 /* Data types */
 typedef double vec_t[3]; // 3-vector
@@ -17,7 +22,11 @@ extern const vec_t i_hat, j_hat, k_hat;  // cardinal unit vectors
 /* Zero vector
  * :param vec_t v_bar: output vector
  */
-static inline void vec_zero(vec_t v_bar) {
+static inline
+void
+vec_zero(
+    vec_t v_bar
+) {
     memset(v_bar, 0, sizeof(vec_t));
 }
 
@@ -25,7 +34,12 @@ static inline void vec_zero(vec_t v_bar) {
  * :param vec_t u_bar: input vector
  * :param vec_t v_bar: output vector
  */
-static inline void vec_pos(const vec_t u_bar, vec_t v_bar) {
+static inline
+void
+vec_pos(
+    const vec_t u_bar,
+    vec_t v_bar
+) {
     memcpy(v_bar, u_bar, sizeof(vec_t));
 }
 
@@ -53,7 +67,11 @@ bool vec_unit(const vec_t, vec_t);
  * :returns: is zero vector?
  * :rtype: bool
  */
-static inline bool vec_iszero(const vec_t v_bar) {
+static inline
+bool
+vec_iszero(
+    const vec_t v_bar
+) {
     return vec_norm(v_bar) < ABSTOL;
 }
 
@@ -62,7 +80,11 @@ static inline bool vec_iszero(const vec_t v_bar) {
  * :returns: is unit vector?
  * :rtype: bool
  */
-static inline bool vec_isunit(const vec_t v_bar) {
+static inline
+bool
+vec_isunit(
+    const vec_t v_bar
+) {
     return fabs(vec_norm(v_bar) - 1.0) < ABSTOL;
 }
 

@@ -12,7 +12,6 @@ _epicycle = Extension(
     define_macros=[
         ("__MEDIUM__", None),
         ("POLY_DEG", "5"),
-        ("GMAT_NDIM", "13"),
     ],
     library_dirs=[os.path.join(os.path.dirname(__file__), "epicycle")],
     libraries=[

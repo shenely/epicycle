@@ -136,28 +136,27 @@ void quat_mul(const quat_t p, const quat_t q, quat_t r)
 
 void quat_pow(const quat_t q, double t, quat_t q__t)
 {
-    LOG_STATS("quat_pow", 1, 3, 3);
+    LOG_STATS("quat_pow", 0, 2, 3);
     assert(quat_isunit(q));
-    double s = vec_dot(&q[1], &q[1]);
+    double s = vec_norm(&q[1]);
     if (s < M_ARCSEC) {
         quat_one(q__t);
     } else {
-        q__t[0] = cos(t * acos(q[0]));
-        s = sqrt((1.0 - q__t[0] * q__t[0]) / s);
-        vec_muls(&q[1], s, &q__t[1]);
+        double phi = t * acos(q[0]);
+        q__t[0] = cos(phi);
+        vec_muls(&q[1], sin(phi) / s, &q__t[1]);
     }
 }
 
 void vec_exp(const vec_t v_bar, quat_t q)
 {
-    LOG_STATS("vec_exp", 1, 5, 2);
+    LOG_STATS("vec_exp", 0, 1, 2);
     double s = vec_norm(v_bar);
     if (s < M_ARCSEC) {
         quat_one(q);
     } else {
         q[0] = cos(s);
-        s = sqrt(1.0 - q[0] * q[0]) / s;
-        vec_muls(v_bar, s, &q[1]);
+        vec_muls(v_bar, sin(s) / s, &q[1]);
     }
 }
 

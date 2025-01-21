@@ -1,16 +1,17 @@
 #ifndef __GEE_H__
 #define __GEE_H__
+
 /* Earth gravity library
  * ---------------------
  */
 
 /* Internal libraries */
+#include "vehicle_model.h"
+#include "quat.h"
+
+/* Built-in libraries */
 #include <stddef.h>
 #include <stdbool.h>
-
-/* Internal libraries */
-#include "data_model.h"
-#include "quat.h"
 
 /* Constants */
 #define G_MU 3986004.415E+8

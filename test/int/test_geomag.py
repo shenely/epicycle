@@ -9,7 +9,7 @@ import scipy.linalg
 # internal libraries
 from epicycle import quat
 from epicycle import geomag
-from epicycle.data_model import *
+from epicycle.vehicle_model import *
 
 
 def test_geomag():

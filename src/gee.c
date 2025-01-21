@@ -11,7 +11,7 @@
 #include "util.h"
 #include "log.h"
 
-static const struct poly_s __thG0 = {.deg=3, .coeff={
+static const struct poly_s __th_G0 = {.deg=3, .coeff={
     100.4606184,
     36000.77004,
     0.000387933, 
@@ -27,8 +27,8 @@ void gee_quat_i2f(
            J0 = floor(JD + 0.5) - 0.5,
            UT = 24 * (JD - J0),
            T0 = (J0 - 2451545) / 36525,
-           thG = poly_eval(&__thG0, T0) + 360.98564724 * (UT / 24);
-    vec_t foo = {0.0, 0.0, 0.5 * thG * M_PI_180};
+           th_G = poly_eval(&__th_G0, T0) + (360.98564724 / 24.0) * UT;
+    vec_t foo = {0.0, 0.0, 0.5 * th_G * M_PI_180};
     vec_exp(foo, q);
 }
 

@@ -7,8 +7,8 @@ import typing
 import numpy
 
 # internal libraries
-from . import GMAT_NDIM, libcore
-from .gvec import gvec_t, p_gvec_t
+from . import libcore
+from .st import st_t, p_st_t
 
 __all__ = (
     "solve_ivp",
@@ -25,16 +25,14 @@ __all__ = (
 
 
 # bool solve_ivp(
-#     double, const gvec_t*,
-#     double, gvec_t* restrict,
+#     double, const st_t*,
+#     double, st_t* restrict,
 #     ode_meth_t*, ode_fun_t, ode_step_t, 
-#     const gvec_t*, const gvec_t*,
 #     size_t, ...)
 libcore.solve_ivp.argtypes = [
-    ctypes.c_double, p_gvec_t,
-    ctypes.c_double, p_gvec_t,
+    ctypes.c_double, p_st_t,
+    ctypes.c_double, p_st_t,
     ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
-    p_gvec_t, p_gvec_t,
     ctypes.c_size_t
 ]
 libcore.solve_ivp.restype = ctypes.c_bool
@@ -43,18 +41,18 @@ def solve_ivp(
     meth: typing.Optional[typing.Any],
     fun, step, nargs, *vargs
 ) -> bool:
+    y0 = st_t.from_buffer(y0)
+    y1 = st_t.from_buffer(y1)
     return libcore.solve_ivp(
-        x0, y0, x1, y1,
+        x0, ctypes.byref(y0), x1, ctypes.byref(y1),
         meth, fun, step,
-        1.48e-8 * numpy.ones((GMAT_NDIM,)),
-        1.22e-4 * numpy.ones((GMAT_NDIM,)),
         nargs, *vargs
     )
 
 
 def solve_ivp_with_euler(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_euler
@@ -62,8 +60,8 @@ def solve_ivp_with_euler(
 
 
 def solve_ivp_with_verlet(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_verlet
@@ -71,8 +69,8 @@ def solve_ivp_with_verlet(
 
 
 def solve_ivp_with_rk4(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_rk4
@@ -80,8 +78,8 @@ def solve_ivp_with_rk4(
 
 
 def solve_ivp_with_heuler(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_heuler
@@ -92,8 +90,8 @@ def solve_ivp_with_heuler(
     )
 
 def solve_ivp_with_dopri(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_dopri
@@ -105,8 +103,8 @@ def solve_ivp_with_dopri(
 
 
 def solve_ivp_with_beuler(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_beuler
@@ -118,8 +116,8 @@ def solve_ivp_with_beuler(
 
 
 def solve_ivp_with_midp(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_midp
@@ -127,8 +125,8 @@ def solve_ivp_with_midp(
 
 
 def solve_ivp_with_vgl4(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_vgl4
@@ -136,8 +134,8 @@ def solve_ivp_with_vgl4(
 
 
 def solve_ivp_with_vgl6(
-    x0: float, y0: gvec_t,
-    x1: float, y1: gvec_t,
+    x0: float, y0: st_t,
+    x1: float, y1: st_t,
     fun, nargs, *vargs
 ) -> bool:
     meth = libcore._ode_vgl6

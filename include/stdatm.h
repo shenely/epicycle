@@ -1,15 +1,16 @@
 #ifndef __STDATM_H__
 #define __STDATM_H__
+
 /* Standard atmosphere library
  * ---------------------------
  */
 
 /* Internal libraries */
-#include <stdbool.h>
-
-/* Internal libraries */
-#include "data_model.h"
+#include "vehicle_model.h"
 #include "poly.h"
+
+/* Built-in libraries */
+#include <stdbool.h>
 
 /* Constants */
 #define A_RSTAR 8.31432
@@ -49,14 +50,7 @@ bool stdatm_eval(double, struct atm_s* restrict);
  * :param em_t* em: electromagnetic structure
  * :returns bool:
  */
-bool stdatm(
-    size_t,
-    const struct cfg_s*,
-    const struct st_s*,
-    struct in_s* restrict,
-    const struct out_s*,
-    struct em_s* restrict
-);
+bool stdatm(size_t, const struct cfg_s*, const struct st_s*, struct in_s* restrict, const struct out_s*, struct em_s* restrict);
 
 #endif  // __STDATM_H__
 

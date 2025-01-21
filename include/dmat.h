@@ -1,23 +1,21 @@
 #ifndef __DMAT_H__
 #define __DMAT_H__
+
 /* Diagonal matrix library
  * -----------------------
  */
-#include <stdbool.h>
-#include "vec.h"
+ 
+/* Internal libraries */
 #include "mat.h"
+#include "vec.h"
 
-#define dmat_zero(A) vec_zero(A, B)
-#define dmat_pos(A, B) vec_pos(A, B)
-#define dmat_neg(A, B) vec_neg(A, B)
-#define dmat_add(A, B, C) vec_add(A, B, C)
-#define dmat_sub(A, B, C) vec_sub(A, B, C)
-#define dmat_muls(A, s, C) vec_muls(A, s, C)
-#define dmat_mulv(A, u_bar, v_bar) dmat_mul(A, u_bar, v_bar)
-#define dmat_vmul(u_bar, A, v_bar) dmat_mul(A, u_bar, v_bar)
+/* Built-in libraries */
+#include <stdbool.h>
 
 /* Data type */
 typedef vec_t dmat_t; // 3x3 (diagonal) matrix
+
+#define dmat_zero(A) vec_zero(A, B)
 
 /* Diagonal identity matrix
  * :param dmat_t I: output matrix
@@ -43,6 +41,11 @@ double dmat_det(const dmat_t);
  */
 bool dmat_inv(const dmat_t, dmat_t);
 
+#define dmat_pos(A, B) vec_pos(A, B)
+#define dmat_neg(A, B) vec_neg(A, B)
+
+#define dmat_muls(A, s, C) vec_muls(A, s, C)
+
 /* Diagonal matrix multiplication
  * :param dmat_t A: (first) input matrix
  * :param dmat_t B: (second) input matrix
@@ -63,6 +66,9 @@ void dmat_muld(const mat_t, const dmat_t, mat_t);
  * :param mat_t C: output matrix
  */
 void dmat_dmul(const dmat_t, const mat_t, mat_t);
+
+#define dmat_mulv(A, u_bar, v_bar) dmat_mul(A, u_bar, v_bar)
+#define dmat_vmul(u_bar, A, v_bar) dmat_mul(A, u_bar, v_bar)
 
 #endif  // __DMAT_H__
 

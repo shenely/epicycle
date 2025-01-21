@@ -11,10 +11,9 @@ import pytest
 from epicycle import libcore, libgee, ODE_EULER
 from epicycle import vec
 from epicycle import quat
-from epicycle import gvec
 from epicycle import ode
 from epicycle.gee import G_MU
-from epicycle.data_model import *
+from epicycle.vehicle_model import *
 from epicycle.force_model import force_model_t
 
 
@@ -116,8 +115,8 @@ def test_solve_ivp():
     assert math.isclose(v_bar[1], 7.0e3, rel_tol=1.22e-4)
     assert math.isclose(v_bar[2], 0.0, abs_tol=1.48e-8)
     assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
-    assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
-    assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
+    assert math.isclose(om_bar[1], math.pi / 1.5 / math.sqrt(3.0))
+    assert math.isclose(om_bar[2], math.pi / 1.5 / math.sqrt(3.0))
 
 
 @pytest.mark.parametrize("method", (
@@ -225,8 +224,8 @@ def test_solve_ivp_with_bad(method):
     assert math.isclose(v_bar[1], 7.0e3, rel_tol=1.22e-4)
     assert math.isclose(v_bar[2], 0.0, abs_tol=1.48e-8)
     assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
-    assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
-    assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
+    assert math.isclose(om_bar[1], math.pi / 1.5 / math.sqrt(3.0))
+    assert math.isclose(om_bar[2], math.pi / 1.5 / math.sqrt(3.0))
 
 
 @pytest.mark.parametrize("method", (
@@ -334,6 +333,6 @@ def test_solve_ivp_with_good(method):
     assert math.isclose(v_bar[1], 7.0e3, rel_tol=1.22e-4)
     assert math.isclose(v_bar[2], 0.0, abs_tol=1.48e-8)
     assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
-    assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
-    assert math.isclose(om_bar[0], math.pi / 1.5 / math.sqrt(3.0))
+    assert math.isclose(om_bar[1], math.pi / 1.5 / math.sqrt(3.0))
+    assert math.isclose(om_bar[2], math.pi / 1.5 / math.sqrt(3.0))
 

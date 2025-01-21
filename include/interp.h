@@ -1,5 +1,6 @@
 #ifndef __INTERP_H__
 #define __INTERP_H__
+
 /* Interpolation library
  * ---------------------
  */
@@ -19,11 +20,7 @@ void interp_init();
  * :param double x:
  * :param double y: output scalar
  */
-double interp_lerp(
-    double, double,
-    double, double,
-    double
-);
+double interp_lerp(double, double, double, double, double);
 
 /* (Vector) linear interpolation
  * :param double x0: 
@@ -33,11 +30,7 @@ double interp_lerp(
  * :param double x:
  * :param double v_bar: output vector
  */
-void interp_vlerp(
-    double, const vec_t,
-    double, const vec_t,
-    double, vec_t
-);
+void interp_vlerp(double, const vec_t, double, const vec_t, double, vec_t);
 
 /* (Spherical) linear interpolation
  * :param double x0:
@@ -47,11 +40,7 @@ void interp_vlerp(
  * :param double x:
  * :param double q: output quaternion
  */
-void interp_slerp(
-    double, const quat_t,
-    double, const quat_t,
-    double, quat_t
-);
+void interp_slerp(double, const quat_t, double, const quat_t, double, quat_t);
 
 /* (Hermite) cubic spline interpolation
  * :param double x0:
@@ -64,11 +53,7 @@ void interp_slerp(
  * :param double p_bar: output postion vector
  * :param double m_bar: output velocity vector
  */
-void interp_cint(
-    double, const vec_t, const vec_t,
-    double, const vec_t, const vec_t,
-    double, vec_t, vec_t
-);
+void interp_cint(double, const vec_t, const vec_t, double, const vec_t, const vec_t, double, vec_t, vec_t);
 
 /* (Spherical) cubic spline interpolation
  * :param double x0:
@@ -81,11 +66,7 @@ void interp_cint(
  * :param double q: output quaternion
  * :param double om_bar: output angular velocity
  */
-void interp_squad(
-    double, const quat_t, const vec_t,
-    double, const quat_t, const vec_t,
-    double, quat_t, vec_t
-);
+void interp_squad(double, const quat_t, const vec_t, double, const quat_t, const vec_t, double, quat_t, vec_t);
 
 #endif  // __INTERP_H__
 

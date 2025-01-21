@@ -310,9 +310,13 @@ bool em(
     return true;
 }
 
-void apply_force_model(
-    double x, const gvec_t y, gvec_t f,
-    size_t nargs, va_list* vargs
+void
+apply_force_model(
+    double x,
+    const st_t* y,
+    st_t* restrict f,
+    size_t nargs,
+    va_list* vargs
 ) {
     LOG_STATS("apply_force_model", 0, 0, 0);
     assert(nargs >= 9);
@@ -327,7 +331,7 @@ void apply_force_model(
     const struct force_model_s* force_model = va_arg(*vargs, void*);
     // copy `st_s` from input `g_vec`
     st->clk.t = x;
-    memcpy(&st->sys, y, sizeof(gvec_t));
+    memcpy(&st->sys, y, sizeof(st_t));
     interp_obj_lst(size, prev, next, st);
     // XXX reset force/torque first
     vec_zero(in->sys.F_bar);
@@ -342,27 +346,45 @@ void apply_force_model(
     }
     solve_in(size, cfg, st, in, out);
     // copy `in_s` from output `g_vec`
-    vec_pos(st->sys.v_bar, &f[0]);
-    vec_pos(st->sys.om_bar, &f[4]);
-    vec_pos(in->sys.v_dot, &f[7]);
-    vec_pos(in->sys.om_dot, &f[10]);
+    vec_pos(st->sys.v_bar, f->r_bar);
+    vec_muls(st->sys.om_bar, 0.5, &f->q[1]);
+    vec_exp(&f->q[1], f->q);
+    vec_pos(in->sys.v_dot, f->v_bar);
+    vec_pos(in->sys.om_dot, f->om_bar);
 }
 
-bool adjust_time_step(
-    const gvec_t y0,
-    const gvec_t y1,
-    const gvec_t y2,
-    const gvec_t abstol __attribute__((unused)),
-    const gvec_t reltol __attribute__((unused)),
+bool
+adjust_time_step(
+    const st_t* y0,
+    const st_t* y1,
+    const st_t* y2,
     int q, size_t nargs, va_list* vargs
 ) {
-    LOG_STATS("adjust_time_step", 2 * GMAT_NDIM, 2 + GMAT_NDIM, 1);
-    double E = ABSTOL;
-    for (size_t i = 0; i < GMAT_NDIM; i++) {
-        double err = fabs(y1[i] - y2[i]),
-               tol = abstol[i] + reltol[i] * MAX(fabs(y0[i]), fabs(y1[i]));
-        E = MAX(E, err / tol);
-    }
+    LOG_STATS("adjust_time_step", 2 * 13, 2 + 13, 1);
+    vec_t temp;
+    quat_t foo, bar;
+    double E = ABSTOL, err, tol;
+    vec_sub(y1->r_bar, y2->r_bar, temp);
+    err = vec_norm(temp);
+    tol = ABSTOL + RELTOL * MAX(vec_norm(y0->r_bar), vec_norm(y1->r_bar));
+    E = MAX(E, err / tol);
+    quat_conj(y2->q, foo);
+    quat_mul(y1->q, foo, bar);
+    quat_log(bar, temp);
+    err = vec_norm(temp);
+    quat_log(y0->q, temp);
+    tol = vec_norm(temp);
+    quat_log(y1->q, temp);
+    tol = ABSTOL + RELTOL * MAX(tol, vec_norm(temp));
+    E = MAX(E, err / tol);
+    vec_sub(y1->v_bar, y2->v_bar, temp);
+    err = vec_norm(temp);
+    tol = ABSTOL + RELTOL * MAX(vec_norm(y0->v_bar), vec_norm(y1->v_bar));
+    E = MAX(E, err / tol);
+    vec_sub(y1->om_bar, y2->om_bar, temp);
+    err = vec_norm(temp);
+    tol = ABSTOL + RELTOL * MAX(vec_norm(y0->om_bar), vec_norm(y1->om_bar));
+    E = MAX(E, err / tol);
     assert(nargs >= 2);  // we only care about `cfg_s`
     va_arg(*vargs, size_t);
     struct cfg_s* restrict cfg = va_arg(*vargs, void*);

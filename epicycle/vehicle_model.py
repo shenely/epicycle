@@ -12,7 +12,6 @@ from .vec import vec_t
 from .quat import quat_t
 from .mat import mat_t
 from .dmat import dmat_t
-from .gvec import gvec_t
 
 # exports
 __all__ = (
@@ -22,8 +21,7 @@ __all__ = (
     "in_t", "p_in_t",
     "out_t", "p_out_t",
     "em_t", "p_em_t",
-    "data_model_t", "p_data_model_t",
-    "tol_t", "p_tol_t",
+    "vehicle_model_t", "p_vehicle_model_t",
 )
 
 
@@ -203,7 +201,7 @@ class em_t(ctypes.Structure):
     ]
 
 
-class data_model_t(ctypes.Structure):
+class vehicle_model_t(ctypes.Structure):
     _fields_ = [
         ("size", ctypes.c_size_t),
         ("cfg", cfg_t),
@@ -217,37 +215,37 @@ class data_model_t(ctypes.Structure):
 
 @dataclasses.dataclass
 class clk_t:
-    data_model: dataclasses.InitVar[data_model_t]
+    vehicle_model: dataclasses.InitVar[vehicle_model_t]
     cfg: cfg_t.clk_t = dataclasses.field(init=False)
     st: st_t.clk_t = dataclasses.field(init=False)
     ch: ch_t.clk_t = dataclasses.field(init=False)
     
-    def __post_init__(self, data_model: data_model_t):
-        self.cfg = data_model.cfg.clk
-        self.st = data_model.st.clk
-        self.ch = data_model.ch.clk
+    def __post_init__(self, vehicle_model: vehicle_model_t):
+        self.cfg = vehicle_model.cfg.clk
+        self.st = vehicle_model.st.clk
+        self.ch = vehicle_model.ch.clk
 
 
 @dataclasses.dataclass
 class sys_t:
-    data_model: dataclasses.InitVar[data_model_t]
+    vehicle_model: dataclasses.InitVar[vehicle_model_t]
     cfg: cfg_t.sys_t = dataclasses.field(init=False)
     st: st_t.sys_t = dataclasses.field(init=False)
     in_: in_t.sys_t = dataclasses.field(init=False)
     out: out_t.sys_t = dataclasses.field(init=False)
     em: em_t.sys_t = dataclasses.field(init=False)
     
-    def __post_init__(self, data_model: data_model_t):
-        self.cfg = data_model.cfg.sys
-        self.st = data_model.st.sys
-        self.in_ = data_model.in_.sys
-        self.out = data_model.out.sys
-        self.em = data_model.em.sys
+    def __post_init__(self, vehicle_model: vehicle_model_t):
+        self.cfg = vehicle_model.cfg.sys
+        self.st = vehicle_model.st.sys
+        self.in_ = vehicle_model.in_.sys
+        self.out = vehicle_model.out.sys
+        self.em = vehicle_model.em.sys
 
 
 @dataclasses.dataclass
 class obj_t:
-    data_model: dataclasses.InitVar[data_model_t]
+    vehicle_model: dataclasses.InitVar[vehicle_model_t]
     idx: dataclasses.InitVar[int]
     cfg: cfg_t.obj_t = dataclasses.field(init=False)
     st: st_t.obj_t = dataclasses.field(init=False)
@@ -255,19 +253,12 @@ class obj_t:
     in_: in_t.obj_t = dataclasses.field(init=False)
     em: em_t.obj_t = dataclasses.field(init=False)
     
-    def __post_init__(self, data_model: data_model_t, idx: int):
-        self.cfg = data_model.cfg.obj_lst[idx]
-        self.st = data_model.st.obj_lst[idx]
-        self.ch = data_model.ch.obj_lst[idx]
-        self.in_ = data_model.in_.obj_lst[idx]
-        self.em = data_model.em.obj_lst[idx]
-
-
-class tol_t(ctypes.Union):
-    _fields_ = [
-        ("st", st_t.sys_t),
-        ("v_bar", gvec_t),
-    ]
+    def __post_init__(self, vehicle_model: vehicle_model_t, idx: int):
+        self.cfg = vehicle_model.cfg.obj_lst[idx]
+        self.st = vehicle_model.st.obj_lst[idx]
+        self.ch = vehicle_model.ch.obj_lst[idx]
+        self.in_ = vehicle_model.in_.obj_lst[idx]
+        self.em = vehicle_model.em.obj_lst[idx]
 
 
 p_cfg_t = ctypes.POINTER(cfg_t)
@@ -276,6 +267,5 @@ p_ch_t = ctypes.POINTER(ch_t)
 p_in_t = ctypes.POINTER(in_t)
 p_out_t = ctypes.POINTER(out_t)
 p_em_t = ctypes.POINTER(em_t)
-p_data_model_t = ctypes.POINTER(data_model_t)
-p_tol_t = ctypes.POINTER(tol_t)
+p_vehicle_model_t = ctypes.POINTER(vehicle_model_t)
 

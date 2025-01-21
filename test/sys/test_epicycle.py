@@ -6,7 +6,7 @@ import numpy.ctypeslib
 
 # internal libraries
 from epicycle.gee import G_MU
-from epicycle.data_model import data_model_t
+from epicycle.vehicle_model import vehicle_model_t
 from epicycle._epicycle import EpicycleConsole
 
 
@@ -15,35 +15,35 @@ def test_epicycle():
     try:
         console.open()
         with console:
-            data_model = data_model_t.from_buffer(console)
-            data_model.size = 1
-            data_model.cfg.clk.delta_t = 1.0
-            data_model.cfg.obj_lst[0].q = numpy.ctypeslib.as_ctypes(
+            vehicle_model = vehicle_model_t.from_buffer(console)
+            vehicle_model.size = 1
+            vehicle_model.cfg.clk.delta_t = 1.0
+            vehicle_model.cfg.obj_lst[0].q = numpy.ctypeslib.as_ctypes(
                 numpy.array([1.0, 0.0, 0.0, 0.0])
             )
-            data_model.st.obj_lst[0].m = 1.0
-            data_model.st.obj_lst[0].I_cm = numpy.ctypeslib.as_ctypes(
+            vehicle_model.st.obj_lst[0].m = 1.0
+            vehicle_model.st.obj_lst[0].I_cm = numpy.ctypeslib.as_ctypes(
                 numpy.array([1.0 / 12.0, 1.0 / 12.0, 1.0 / 12.0])
             )
-            data_model.st.clk.t = 0.0
-            data_model.st.sys.r_bar = numpy.ctypeslib.as_ctypes(
+            vehicle_model.st.clk.t = 0.0
+            vehicle_model.st.sys.r_bar = numpy.ctypeslib.as_ctypes(
                 numpy.array([7000.0e3, 0.0, 0.0])
             )
-            data_model.st.sys.q = numpy.ctypeslib.as_ctypes(
+            vehicle_model.st.sys.q = numpy.ctypeslib.as_ctypes(
                 numpy.array([1.0, 0.0, 0.0, 0.0])
             )
-            data_model.st.sys.v_bar = numpy.ctypeslib.as_ctypes(
+            vehicle_model.st.sys.v_bar = numpy.ctypeslib.as_ctypes(
                 numpy.array([0.0, 7.0e3, 0.0])
             )
-            data_model.ch.clk.t = 1.0
-            data_model.in_.obj_lst[0].M_bar = numpy.ctypeslib.as_ctypes(
+            vehicle_model.ch.clk.t = 1.0
+            vehicle_model.in_.obj_lst[0].M_bar = numpy.ctypeslib.as_ctypes(
                 numpy.array([1.0, 1.0, 1.0]) * math.pi / 18.0 / math.sqrt(3.0)
             )
         with console:
-            r_bar = numpy.ctypeslib.as_array(data_model.st.sys.r_bar)
-            q = numpy.ctypeslib.as_array(data_model.st.sys.q)
-            v_bar = numpy.ctypeslib.as_array(data_model.st.sys.v_bar)
-            om_bar = numpy.ctypeslib.as_array(data_model.st.sys.om_bar)
+            r_bar = numpy.ctypeslib.as_array(vehicle_model.st.sys.r_bar)
+            q = numpy.ctypeslib.as_array(vehicle_model.st.sys.q)
+            v_bar = numpy.ctypeslib.as_array(vehicle_model.st.sys.v_bar)
+            om_bar = numpy.ctypeslib.as_array(vehicle_model.st.sys.om_bar)
             print(r_bar)
             print(q)
             print(v_bar)
