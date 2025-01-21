@@ -6,7 +6,7 @@ from matplotlib import pyplot
 import mpl_toolkits.mplot3d.art3d
 import matplotlib.animation
 
-from epicycle.vehicle_model import vehicle_model_a, ch_t, obj_t
+from epicycle.vehicle_model import vehicle_model_t, ch_t, obj_t
 from epicycle._epicycle import EpicycleConsole
 
 i_hat = numpy.array([1.0, 0.0, 0.0])

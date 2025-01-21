@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <assert.h>
+#include "config.h"
 #include "quat.h"
-#include "util.h"
 #include "log.h"
 
 void quat_one(quat_t q) 
@@ -41,7 +41,7 @@ bool quat_inv(const quat_t q, quat_t q_inv)
     double s = 0.0;
     for (size_t i = 0; i < 4; i++)
         s += q[i] * q[i];
-    if (s < M_ARCSEC)
+    if (s < ABSTOL)
         return false;
     quat_conj(q, q_inv);
     quat_muls(q_inv, 1.0 / s, q_inv);
@@ -52,7 +52,7 @@ bool quat_unit(const quat_t p, quat_t q)
 {
     LOG_STATS("quat_unit", 0, 1, 0);
     double s;
-    if ((s = quat_norm(p)) < M_ARCSEC)
+    if ((s = quat_norm(p)) < ABSTOL)
         return false;
     quat_muls(p, 1.0 / s, q);
     return true;
@@ -139,7 +139,7 @@ void quat_pow(const quat_t q, double t, quat_t q__t)
     LOG_STATS("quat_pow", 0, 2, 3);
     assert(quat_isunit(q));
     double s = vec_norm(&q[1]);
-    if (s < M_ARCSEC) {
+    if (s < ABSTOL) {
         quat_one(q__t);
     } else {
         double phi = t * acos(q[0]);
@@ -152,7 +152,7 @@ void vec_exp(const vec_t v_bar, quat_t q)
 {
     LOG_STATS("vec_exp", 0, 1, 2);
     double s = vec_norm(v_bar);
-    if (s < M_ARCSEC) {
+    if (s < ABSTOL) {
         quat_one(q);
     } else {
         q[0] = cos(s);
@@ -165,7 +165,7 @@ void quat_log(const quat_t q, vec_t v_bar)
     LOG_STATS("quat_log", 0, 1, 1);
     assert(quat_isunit(q));
     double s = vec_norm(&q[1]);
-    if (s < M_ARCSEC) {
+    if (s < ABSTOL) {
         vec_zero(v_bar);
     } else {
         s = acos(q[0]) / s;
@@ -181,7 +181,7 @@ void vec_rot(const quat_t q, const vec_t u_bar, vec_t v_bar)
     quat_conj(q, foo);
     quat_vmul(u_bar, foo, bar);
     quat_mul(q, bar, foo);
-    assert(fabs(foo[0]) < M_ARCSEC);
+    assert(fabs(foo[0]) < ABSTOL);
     vec_pos(&foo[1], v_bar);
 }
 
@@ -193,7 +193,7 @@ void vec_irot(const quat_t q, const vec_t u_bar, vec_t v_bar)
     quat_conj(q, foo);
     quat_mulv(foo, u_bar, bar);
     quat_mul(bar, q, foo);
-    assert(fabs(foo[0]) < M_ARCSEC);
+    assert(fabs(foo[0]) < ABSTOL);
     vec_pos(&foo[1], v_bar);
 }
 
